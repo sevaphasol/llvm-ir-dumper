@@ -1,0 +1,207 @@
+[Module] c_examples/hello.c
+[Function] func (arg_size: 1)
+; Function Attrs: nounwind uwtable
+define dso_local void @func(i32 noundef %0) #0 {
+  %2 = alloca i32, align 4
+  store i32 %0, ptr %2, align 4, !tbaa !5
+  %3 = load i32, ptr %2, align 4, !tbaa !5
+  %4 = icmp ne i32 %3, 0
+  br i1 %4, label %5, label %7
+
+5:                                                ; preds = %1
+  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str)
+  br label %9
+
+7:                                                ; preds = %1
+  %8 = call i32 (ptr, ...) @printf(ptr noundef @.str.1)
+  br label %9
+
+9:                                                ; preds = %7, %5
+  ret void
+}
+
+[Function Users]
+  call void @func(i32 noundef 1)
+
+#[Basic block]
+  %2 = alloca i32, align 4
+  store i32 %0, ptr %2, align 4, !tbaa !5
+  %3 = load i32, ptr %2, align 4, !tbaa !5
+  %4 = icmp ne i32 %3, 0
+  br i1 %4, label %5, label %7
+#[BasicBlock Users]
+
+##[Instruction]
+  %2 = alloca i32, align 4
+##[Users]
+  %3 = load i32, ptr %2, align 4, !tbaa !5
+  store i32 %0, ptr %2, align 4, !tbaa !5
+##[Operands]
+i32 1
+
+##[Instruction]
+  store i32 %0, ptr %2, align 4, !tbaa !5
+##[Users]
+##[Operands]
+i32 %0
+  %2 = alloca i32, align 4
+
+##[Instruction]
+  %3 = load i32, ptr %2, align 4, !tbaa !5
+##[Users]
+  %4 = icmp ne i32 %3, 0
+##[Operands]
+  %2 = alloca i32, align 4
+
+##[Instruction]
+  %4 = icmp ne i32 %3, 0
+##[Users]
+  br i1 %4, label %5, label %7
+##[Operands]
+  %3 = load i32, ptr %2, align 4, !tbaa !5
+i32 0
+
+##[Instruction]
+  br i1 %4, label %5, label %7
+##[Users]
+##[Operands]
+  %4 = icmp ne i32 %3, 0
+
+7:                                                ; preds = %1
+  %8 = call i32 (ptr, ...) @printf(ptr noundef @.str.1)
+  br label %9
+
+
+5:                                                ; preds = %1
+  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str)
+  br label %9
+
+
+#[Basic block]
+5:                                                ; preds = %1
+  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str)
+  br label %9
+#[BasicBlock Users]
+  br i1 %4, label %5, label %7
+
+##[Instruction]
+  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str)
+##[Users]
+##[Operands]
+@.str = private unnamed_addr constant [15 x i8] c"Hello, world!\0A\00", align 1
+declare i32 @printf(ptr noundef %0, ...) #1
+
+
+##[Instruction]
+  br label %9
+##[Users]
+##[Operands]
+
+9:                                                ; preds = %7, %5
+  ret void
+
+
+#[Basic block]
+7:                                                ; preds = %1
+  %8 = call i32 (ptr, ...) @printf(ptr noundef @.str.1)
+  br label %9
+#[BasicBlock Users]
+  br i1 %4, label %5, label %7
+
+##[Instruction]
+  %8 = call i32 (ptr, ...) @printf(ptr noundef @.str.1)
+##[Users]
+##[Operands]
+@.str.1 = private unnamed_addr constant [14 x i8] c"Hell, world!\0A\00", align 1
+declare i32 @printf(ptr noundef %0, ...) #1
+
+
+##[Instruction]
+  br label %9
+##[Users]
+##[Operands]
+
+9:                                                ; preds = %7, %5
+  ret void
+
+
+#[Basic block]
+9:                                                ; preds = %7, %5
+  ret void
+#[BasicBlock Users]
+  br label %9
+  br label %9
+
+##[Instruction]
+  ret void
+##[Users]
+##[Operands]
+[Function] printf (arg_size: 1)
+declare i32 @printf(ptr noundef, ...) #1
+
+[Function Users]
+  %8 = call i32 (ptr, ...) @printf(ptr noundef @.str.1)
+  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str)
+[Function] main (arg_size: 0)
+; Function Attrs: nounwind uwtable
+define dso_local i32 @main() #0 {
+  %1 = alloca i32, align 4
+  store i32 0, ptr %1, align 4
+  call void @func(i32 noundef 1)
+  ret i32 0
+}
+
+[Function Users]
+
+#[Basic block]
+  %1 = alloca i32, align 4
+  store i32 0, ptr %1, align 4
+  call void @func(i32 noundef 1)
+  ret i32 0
+#[BasicBlock Users]
+
+##[Instruction]
+  %1 = alloca i32, align 4
+##[Users]
+  store i32 0, ptr %1, align 4
+##[Operands]
+i32 1
+
+##[Instruction]
+  store i32 0, ptr %1, align 4
+##[Users]
+##[Operands]
+i32 0
+  %1 = alloca i32, align 4
+
+##[Instruction]
+  call void @func(i32 noundef 1)
+##[Users]
+##[Operands]
+i32 1
+; Function Attrs: nounwind uwtable
+define dso_local void @func(i32 noundef %0) #0 {
+  %2 = alloca i32, align 4
+  store i32 %0, ptr %2, align 4, !tbaa !5
+  %3 = load i32, ptr %2, align 4, !tbaa !5
+  %4 = icmp ne i32 %3, 0
+  br i1 %4, label %5, label %7
+
+5:                                                ; preds = %1
+  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str)
+  br label %9
+
+7:                                                ; preds = %1
+  %8 = call i32 (ptr, ...) @printf(ptr noundef @.str.1)
+  br label %9
+
+9:                                                ; preds = %7, %5
+  ret void
+}
+
+
+##[Instruction]
+  ret i32 0
+##[Users]
+##[Operands]
+i32 0

@@ -1,0 +1,148 @@
+digraph "c_examples/hello.c" {
+  graph [pad=0.3];
+  rankdir=LR;
+  newrank=true;
+  splines=true;
+  overlap=false;
+  nodesep=0.35;
+  ranksep=0.7;
+  node  [fontname="SF Pro Text Bold 10", fontsize=11];
+  edge  [fontname="SF Pro Text Bold 10", fontsize=10];
+subgraph cluster_1 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>func</B>>;
+subgraph cluster_1_1 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>BasicBlock_1</B>>;
+n0x6148c6214c60[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="alloca"];
+n0x6148c620f110[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="store"];
+n0x6148c62448b0[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="load"];
+n0x6148c610b370[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="icmp"];
+n0x6148c61c7180[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="br"];
+n0x6148c6214c60->n0x6148c620f110 [color="#FF0000"];
+n0x6148c620f110->n0x6148c62448b0 [color="#FF0000"];
+n0x6148c62448b0->n0x6148c610b370 [color="#FF0000"];
+n0x6148c610b370->n0x6148c61c7180 [color="#FF0000"];
+n0x6148c6214c60->n0x6148c62448b0 [color="#0000FF"];
+n0x6148c6214c60->n0x6148c620f110 [color="#0000FF"];
+n0x6148c61c7630[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label="i32 1"];
+n0x6148c61c7630->n0x6148c6214c60 [color="#00FF00"];
+n0x6148c61bffd0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c61bffd0->n0x6148c620f110 [color="#00FF00"];
+n0x6148c6214c60->n0x6148c620f110 [color="#00FF00"];
+n0x6148c62448b0->n0x6148c610b370 [color="#0000FF"];
+n0x6148c6214c60->n0x6148c62448b0 [color="#00FF00"];
+n0x6148c610b370->n0x6148c61c7180 [color="#0000FF"];
+n0x6148c62448b0->n0x6148c610b370 [color="#00FF00"];
+n0x6148c6214de0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label="i32 0"];
+n0x6148c6214de0->n0x6148c610b370 [color="#00FF00"];
+n0x6148c610b370->n0x6148c61c7180 [color="#00FF00"];
+n0x6148c6244840[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c6244840->n0x6148c61c7180 [color="#00FF00"];
+n0x6148c62447a0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c62447a0->n0x6148c61c7180 [color="#00FF00"];
+}
+subgraph cluster_1_2 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>BasicBlock_2</B>>;
+n0x6148c6245790[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="call"];
+n0x6148c61cf600[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="br"];
+n0x6148c6245790->n0x6148c61cf600 [color="#FF0000"];
+n0x6148c62456d0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c62456d0->n0x6148c6245790 [color="#00FF00"];
+n0x6148c610b3c8[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c610b3c8->n0x6148c6245790 [color="#00FF00"];
+n0x6148c62447f0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c62447f0->n0x6148c61cf600 [color="#00FF00"];
+}
+subgraph cluster_1_3 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>BasicBlock_3</B>>;
+n0x6148c6245930[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="call"];
+n0x6148c62459b0[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="br"];
+n0x6148c6245930->n0x6148c62459b0 [color="#FF0000"];
+n0x6148c6245830[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c6245830->n0x6148c6245930 [color="#00FF00"];
+n0x6148c610b3c8[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c610b3c8->n0x6148c6245930 [color="#00FF00"];
+n0x6148c62447f0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c62447f0->n0x6148c62459b0 [color="#00FF00"];
+}
+subgraph cluster_1_4 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>BasicBlock_4</B>>;
+n0x6148c6214bf0[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="ret"];
+}
+}
+subgraph cluster_2 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>printf</B>>;
+}
+subgraph cluster_3 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>main</B>>;
+subgraph cluster_3_1 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>BasicBlock_1</B>>;
+n0x6148c6246710[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="alloca"];
+n0x6148c62467b0[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="store"];
+n0x6148c6246850[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="call"];
+n0x6148c6246970[shape=circle, style=" filled ", fillcolor=" #E8EEF9 ", color=" #1f1d31ff ", fontcolor=" #000000 ", label="ret"];
+n0x6148c6246710->n0x6148c62467b0 [color="#FF0000"];
+n0x6148c62467b0->n0x6148c6246850 [color="#FF0000"];
+n0x6148c6246850->n0x6148c6246970 [color="#FF0000"];
+n0x6148c6246710->n0x6148c62467b0 [color="#0000FF"];
+n0x6148c61c7630[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label="i32 1"];
+n0x6148c61c7630->n0x6148c6246710 [color="#00FF00"];
+n0x6148c6214de0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label="i32 0"];
+n0x6148c6214de0->n0x6148c62467b0 [color="#00FF00"];
+n0x6148c6246710->n0x6148c62467b0 [color="#00FF00"];
+n0x6148c61c7630[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label="i32 1"];
+n0x6148c61c7630->n0x6148c6246850 [color="#00FF00"];
+n0x6148c610a3a8[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label=""];
+n0x6148c610a3a8->n0x6148c6246850 [color="#00FF00"];
+n0x6148c6214de0[shape=circle, style=" filled ", fillcolor =" #00EEF9 ", color=" #1f1d31ff ", fontcolor=" # 000000 ", label="i32 0"];
+n0x6148c6214de0->n0x6148c6246970 [color="#00FF00"];
+}
+}
+}
