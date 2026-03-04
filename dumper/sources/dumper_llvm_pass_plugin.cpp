@@ -2,19 +2,26 @@
 #include "llvm/IR/Metadata.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/ModuleSlotTracker.h"
+#include "llvm/IR/PassManager.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Support/CommandLine.h"
 
 using namespace llvm;
+
+static cl::opt<std::string> DotOut("dumper-pass-dot-out",
+                                   cl::desc("Output path for dot dump"),
+                                   cl::init("dumper_llvm_pass_out.dot"));
 
 struct MyModPass : public PassInfoMixin<MyModPass> {
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
     std::error_code EC;
-    raw_fd_ostream dump("dump.dot", EC);
+    raw_fd_ostream dump(DotOut, EC);
     if (EC) {
-      errs() << "Unable to open file dump.dot\n";
-      exit(1);
+      errs() << "[dumper-pass] unable to open " << DotOut << ": "
+             << EC.message() << "\n";
+      return PreservedAnalyses::all();
     }
 
     ModuleSlotTracker MST(&M);
