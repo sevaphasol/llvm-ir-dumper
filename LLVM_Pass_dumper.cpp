@@ -126,9 +126,10 @@ struct MyModPass : public PassInfoMixin<MyModPass> {
                 use->getType()->print(dump);
                 dump << " ";
                 ConstInt->getValue().print(dump, true);
+              } else {
+                use->printAsOperand(dump);
               }
               dump << "\"];\n";
-              //   use->print(dump, true);
             }
 
             dump << "n" << use << "->" << "n" << &(*I_it)
