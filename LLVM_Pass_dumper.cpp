@@ -1,5 +1,7 @@
 #include "llvm/IR/Instruction.h"
+#include "llvm/IR/Metadata.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/ModuleSlotTracker.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/Casting.h"
@@ -14,6 +16,8 @@ struct MyModPass : public PassInfoMixin<MyModPass> {
       errs() << "Unable to open file dump.dot\n";
       exit(1);
     }
+
+    ModuleSlotTracker MST(&M);
 
     outs() << "[Module] " << M.getName() << '\n';
 
@@ -31,6 +35,8 @@ struct MyModPass : public PassInfoMixin<MyModPass> {
     std::size_t func_cnt = 0;
 
     for (auto &F : M) {
+      MST.incorporateFunction(F);
+
       outs() << "[Function] " << F.getName() << " (arg_size: " << F.arg_size()
              << ")\n";
       F.print(outs());
@@ -110,8 +116,9 @@ struct MyModPass : public PassInfoMixin<MyModPass> {
         for (auto I_it = B.begin(); I_it != B.end(); ++I_it) {
           for (auto &U : I_it->uses()) {
             User *user = U.getUser();
+            int Slot = MST.getLocalSlot(&(*I_it));
             dump << "n" << &(*I_it) << "->" << "n" << user
-                 << " [color=\"#0000FF\"];\n";
+                 << " [color=\"#0000FF\", label=\"%" << Slot << "\"];\n";
           }
 
           for (auto &U : I_it->operands()) {
@@ -132,8 +139,9 @@ struct MyModPass : public PassInfoMixin<MyModPass> {
               dump << "\"];\n";
             }
 
+            int Slot = MST.getLocalSlot(use);
             dump << "n" << use << "->" << "n" << &(*I_it)
-                 << " [color=\"#00FF00\"];\n";
+                 << " [color=\"#00FF00\", label=\"%" << Slot << "\"];\n";
           }
         }
 
