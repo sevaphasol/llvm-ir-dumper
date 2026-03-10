@@ -12,8 +12,8 @@ DumperPass::run( llvm::Module& M, llvm::ModuleAnalysisManager& AM )
     llvm::raw_fd_ostream dump( dot_out, EC );
     if ( EC )
     {
-        llvm::errs() << "[dumper-pass] unable to open " << dot_out << ": " << EC.message()
-                     << "\n";
+        llvm::errs() << "[dumper-pass] unable to open dump file (" << dot_out
+                     << "): " << EC.message() << "\n";
         return llvm::PreservedAnalyses::all();
     }
 
@@ -23,7 +23,7 @@ DumperPass::run( llvm::Module& M, llvm::ModuleAnalysisManager& AM )
 
     dump << "digraph \"" << M.getName() << "\" {\n"
          << "  graph [pad=0.3];\n"
-         << "  rankdir=LR;\n"
+         << "  rankdir=UB;\n"
          << "  newrank=true;\n"
          << "  splines=true;\n"
          << "  overlap=false;\n"
@@ -105,8 +105,8 @@ DumperPass::run( llvm::Module& M, llvm::ModuleAnalysisManager& AM )
             for ( auto& I : B )
             {
                 dump << "n" << &I
-                     << "[shape=circle, style=\" filled \", fillcolor=\" #E8EEF9 \", "
-                        "color=\" #1f1d31ff \", fontcolor=\" #000000 \", label=\""
+                     << "[shape=circle, style=\"filled\", fillcolor=\"#E8EEF9\", "
+                        "color=\"#1f1d31ff\", fontcolor=\"#000000\", label=\""
                      << I.getOpcodeName() << "\"];\n";
             }
 
@@ -137,9 +137,8 @@ DumperPass::run( llvm::Module& M, llvm::ModuleAnalysisManager& AM )
                     if ( !llvm::dyn_cast<llvm::Instruction, llvm::Value>( use ) )
                     {
                         dump << "n" << use
-                             << "[shape=circle, style=\" filled \", fillcolor =\" "
-                                "#00EEF9 \", color=\" #1f1d31ff \", fontcolor=\" # "
-                                "000000 \", label=\"";
+                             << "[shape=circle, style=\"filled\", fillcolor=\"#00EEF9\", "
+                                "color=\"#1f1d31ff\", fontcolor=\"#000000\", label=\"";
                         if ( auto ConstInt = llvm::dyn_cast<llvm::ConstantInt>( use ) )
                         {
                             use->getType()->print( dump );
