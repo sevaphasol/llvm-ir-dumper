@@ -47,7 +47,7 @@ DumperPass::dumpModule( llvm::Module&         M,
     dot_dump << "digraph \"" << M.getName() << "\" {\n"
              << "  graph [pad=0.3];\n"
              << "  rankdir=UB;\n"
-             << "  newrank=true;\n"
+             //  << "  newrank=true;\n"
              //  << "  splines=ortho;\n"
              << "  compound=true;\n"
              << "  overlap=false;\n"
@@ -136,19 +136,6 @@ DumperPass::dumpBasicBlock( llvm::BasicBlock&        B,
                             std::size_t              func_cnt,
                             std::size_t&             basic_block_cnt )
 {
-    const auto printOperandNodeId = []( llvm::raw_ostream& OS,
-                                        const llvm::Value* V,
-                                        const llvm::User*  user,
-                                        unsigned           operand_index ) {
-        if ( llvm::isa<llvm::Constant>( V ) && !llvm::isa<llvm::GlobalValue>( V ) )
-        {
-            OS << "nconst_" << user << "_" << operand_index;
-        } else
-        {
-            OS << "n" << V;
-        }
-    };
-
     basic_block_cnt++;
 
     dot_dump << "subgraph cluster_" << func_cnt << "_" << basic_block_cnt << " {\n"
@@ -235,10 +222,10 @@ DumperPass::dumpBasicBlock( llvm::BasicBlock&        B,
                 continue;
             }
 
-            if ( !llvm::dyn_cast<llvm::Instruction, llvm::Value>( use ) )
+            if ( !llvm::dyn_cast<llvm::Instruction>( use ) )
             {
-                printOperandNodeId( dot_dump, use, &( *I_it ), operand_index );
-                dot_dump << "[shape=box, style=\"rounded, filled\", fillcolor=\"#00EEF9\", "
+                dot_dump << "n" << &U
+                         << "[shape=box, style=\"rounded, filled\", fillcolor=\"#00EEF9\", "
                             "color=\"#1f1d31ff\", fontcolor=\"#000000\", label=\"";
                 if ( auto ConstInt = llvm::dyn_cast<llvm::ConstantInt>( use ) )
                 {
@@ -250,11 +237,23 @@ DumperPass::dumpBasicBlock( llvm::BasicBlock&        B,
                     use->printAsOperand( dot_dump );
                 }
                 dot_dump << "\"];\n";
+
+                int slot = MST.getLocalSlot( use );
+
+                dot_dump << "n" << &U << "->"
+                         << "n" << &( *I_it ) << " [color=\"#00FF00\"";
+                if ( slot != -1 )
+                {
+                    dot_dump << ", label=\"%" << slot << "\"";
+                }
+
+                dot_dump << "];\n";
+
+                continue;
             }
 
             int slot = MST.getLocalSlot( use );
-            printOperandNodeId( dot_dump, use, &( *I_it ), operand_index );
-            dot_dump << "->"
+            dot_dump << "n" << use << "->"
                      << "n" << &( *I_it ) << " [color=\"#00FF00\"";
             if ( slot != -1 )
             {
@@ -262,7 +261,6 @@ DumperPass::dumpBasicBlock( llvm::BasicBlock&        B,
             }
 
             dot_dump << "];\n";
-            operand_index++;
         }
     }
 
