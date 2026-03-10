@@ -15,11 +15,11 @@ llvmGetPassPluginInfo()
 {
     const auto callback = []( llvm::PassBuilder& PB ) {
         PB.registerPipelineStartEPCallback( []( llvm::ModulePassManager& MPM, auto ) {
-            MPM.addPass( llvm_ir_dumper::DumperPass{ DotOutBeforeOpt } );
+            MPM.addPass( llvm_ir_dumper::DumperPass{ DotOutBeforeOpt, IrOutBeforeOpt } );
             return true;
         } );
         PB.registerOptimizerLastEPCallback( []( llvm::ModulePassManager& MPM, auto ) {
-            MPM.addPass( llvm_ir_dumper::DumperPass{ DotOutAfterOpt } );
+            MPM.addPass( llvm_ir_dumper::DumperPass{ DotOutAfterOpt, IrOutAfterOpt } );
             return true;
         } );
     };

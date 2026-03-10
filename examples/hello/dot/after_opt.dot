@@ -1,0 +1,86 @@
+digraph "examples/hello/hello.c" {
+  graph [pad=0.3];
+  rankdir=UB;
+  newrank=true;
+  splines=true;
+  overlap=false;
+  nodesep=0.35;
+  ranksep=0.7;
+  node  [fontname="SF Pro Text Bold 10", fontsize=11];
+  edge  [fontname="SF Pro Text Bold 10", fontsize=10];
+subgraph cluster_2 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>func</B>>;
+subgraph cluster_2_1 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label="";
+n0x5e39407cd2e0[shape=circle, style="filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="icmp"];
+n0x5e39408dc4a0[shape=circle, style="filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="select"];
+n0x5e39408e74e0[shape=circle, style="filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="call"];
+n0x5e39408d9e40[shape=circle, style="filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="ret"];
+n0x5e39407cd2e0->n0x5e39408dc4a0 [color="#FF0000"];
+n0x5e39408dc4a0->n0x5e39408e74e0 [color="#FF0000"];
+n0x5e39408e74e0->n0x5e39408d9e40 [color="#FF0000"];
+n0x5e39407cd2e0->n0x5e39408dc4a0 [color="#0000FF", label="%2"];
+n0x5e3940884b40[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 %0"];
+n0x5e3940884b40->n0x5e39407cd2e0 [color="#00FF00", label="%0"];
+n0x5e394088c1c0[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 0"];
+n0x5e394088c1c0->n0x5e39407cd2e0 [color="#00FF00", label="%-1"];
+n0x5e39408dc4a0->n0x5e39408e74e0 [color="#0000FF", label="%3"];
+n0x5e39407cd2e0->n0x5e39408dc4a0 [color="#00FF00", label="%2"];
+n0x5e394090af80[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="ptr @str"];
+n0x5e394090af80->n0x5e39408dc4a0 [color="#00FF00", label="%-1"];
+n0x5e394088bf50[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="ptr @str.2"];
+n0x5e394088bf50->n0x5e39408dc4a0 [color="#00FF00", label="%-1"];
+n0x5e39408dc4a0->n0x5e39408e74e0 [color="#00FF00", label="%3"];
+n0x5e39408c7d68[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="ptr @puts"];
+n0x5e39408c7d68->n0x5e39408e74e0 [color="#00FF00", label="%-1"];
+}
+}
+subgraph cluster_4 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>main</B>>;
+subgraph cluster_4_1 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label="";
+n0x5e394090b160[shape=circle, style="filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="call"];
+n0x5e394090b1e0[shape=circle, style="filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="ret"];
+n0x5e394090b160->n0x5e394090b1e0 [color="#FF0000"];
+n0x5e394088bf50[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="ptr @str.2"];
+n0x5e394088bf50->n0x5e394090b160 [color="#00FF00", label="%-1"];
+n0x5e39408c7d68[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="ptr @puts"];
+n0x5e39408c7d68->n0x5e394090b160 [color="#00FF00", label="%-1"];
+n0x5e394088c1c0[shape=circle, style="filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 0"];
+n0x5e394088c1c0->n0x5e394090b1e0 [color="#00FF00", label="%-1"];
+}
+}
+subgraph cluster_6 {
+  style="rounded";
+  color="#C0C0C0";
+  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>puts</B>>;
+}
+}

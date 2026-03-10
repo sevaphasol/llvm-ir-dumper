@@ -1,0 +1,65 @@
+digraph "examples/my_test/my_test.c" {
+  graph [pad=0.3];
+  rankdir=UB;
+  newrank=true;
+  overlap=false;
+  nodesep=0.35;
+  ranksep=0.7;
+  node  [fontname="SF Pro Text Bold 10", fontsize=11];
+  edge  [fontname="SF Pro Text Bold 10", fontsize=10];
+subgraph cluster_2 {
+  shape="box";
+  style="rounded, filled";
+  color="#000000ff";
+  penwidth=2;
+  fillcolor="#e3e3e3ff";  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label=<<B>main</B>>;
+subgraph cluster_2_1 {
+  shape="box";
+  style="rounded, filled";
+  color="#000000ff";
+  penwidth=2;
+  fillcolor="#a4a4a4ff";  labelloc="t";
+  labeljust="l";
+  fontsize=13;
+  fontname="SF Pro Text Bold 10";
+  label="";
+n0x5e9072512c90[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="alloca"];
+n0x5e9072513560[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="alloca"];
+n0x5e9072513e90[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="alloca"];
+n0x5e90724b8570[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="store"];
+n0x5e9072513e10[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="store"];
+n0x5e9072513f30[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="store"];
+n0x5e9072514050[shape=box, style="rounded, filled", fillcolor="#E8EEF9", color="#1f1d31ff", fontcolor="#000000", label="ret"];
+n0x5e9072512c90->n0x5e9072513560 [color="#FF0000", weight=1000, penwidth=3];
+n0x5e9072513560->n0x5e9072513e90 [color="#FF0000", weight=1000, penwidth=3];
+n0x5e9072513e90->n0x5e90724b8570 [color="#FF0000", weight=1000, penwidth=3];
+n0x5e90724b8570->n0x5e9072513e10 [color="#FF0000", weight=1000, penwidth=3];
+n0x5e9072513e10->n0x5e9072513f30 [color="#FF0000", weight=1000, penwidth=3];
+n0x5e9072513f30->n0x5e9072514050 [color="#FF0000", weight=1000, penwidth=3];
+n0x5e9072512c90->n0x5e90724b8570 [color="#0000FF", label="%1"];
+nconst_0x5e9072512c90_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 1"];
+nconst_0x5e9072512c90_0->n0x5e9072512c90 [color="#00FF00"];
+n0x5e9072513560->n0x5e9072513e10 [color="#0000FF", label="%2"];
+nconst_0x5e9072513560_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 1"];
+nconst_0x5e9072513560_0->n0x5e9072513560 [color="#00FF00"];
+n0x5e9072513e90->n0x5e9072513f30 [color="#0000FF", label="%3"];
+nconst_0x5e9072513e90_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 1"];
+nconst_0x5e9072513e90_0->n0x5e9072513e90 [color="#00FF00"];
+nconst_0x5e90724b8570_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 0"];
+nconst_0x5e90724b8570_0->n0x5e90724b8570 [color="#00FF00"];
+n0x5e9072512c90->n0x5e90724b8570 [color="#00FF00", label="%1"];
+nconst_0x5e9072513e10_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 0"];
+nconst_0x5e9072513e10_0->n0x5e9072513e10 [color="#00FF00"];
+n0x5e9072513560->n0x5e9072513e10 [color="#00FF00", label="%2"];
+nconst_0x5e9072513f30_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 0"];
+nconst_0x5e9072513f30_0->n0x5e9072513f30 [color="#00FF00"];
+n0x5e9072513e90->n0x5e9072513f30 [color="#00FF00", label="%3"];
+nconst_0x5e9072514050_0[shape=box, style="rounded, filled", fillcolor="#00EEF9", color="#1f1d31ff", fontcolor="#000000", label="i32 0"];
+nconst_0x5e9072514050_0->n0x5e9072514050 [color="#00FF00"];
+}
+}
+}

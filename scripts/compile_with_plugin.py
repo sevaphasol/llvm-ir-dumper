@@ -8,7 +8,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PLUGIN_PATH = REPO_ROOT / "install" / "lib" / "libLLVMIRDumper.so"
-DEFAULT_BINARY_OUTPUT = REPO_ROOT / "build" / "a.out"
+DEFAULT_BINARY_OUT = REPO_ROOT / "build" / "a.out"
 
 
 def parse_args():
@@ -20,6 +20,12 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--workdir",
+        default=REPO_ROOT,
+        help="Parent directory to source, llvm_ir, before/after dot and svg. Defaults to %(default)s",
+    )
+
+    parser.add_argument(
         "--source",
         help="Path to the source file to compile.",
         required=True,
@@ -27,39 +33,52 @@ def parse_args():
 
     parser.add_argument(
         "--plugin-path",
-        default=str(DEFAULT_PLUGIN_PATH),
+        default=DEFAULT_PLUGIN_PATH,
         help="Path to libLLVMIRDumper.so. Defaults to %(default)s.",
     )
 
     parser.add_argument(
+        "--before-ll",
+        default="llvm_ir/before_opt.ll",
+        help="Output path for the before-optimization llvm ir. Defaults to %(default)s.",
+    )
+    parser.add_argument(
+        "--after-ll",
+        default="llvm_ir/after_opt.ll",
+        help="Output path for the after-optimization llvm ir. Defaults to %(default)s.",
+    )
+
+    parser.add_argument(
         "--before-dot",
-        help="Path for the before-optimization dot dump.",
-        required=True,
+        default="dot/before_opt.dot",
+        help="Path for the before-optimization dot dump. Defaults to %(default)s.",
     )
     parser.add_argument(
         "--after-dot",
-        help="Path for the after-optimization dot dump.",
-        required=True,
+        default="dot/after_opt.dot",
+        help="Path for the after-optimization dot dump. Defaults to %(default)s.",
     )
 
     parser.add_argument(
-        "--generate-svg",
+        "--no-svg",
         action="store_true",
-        help="Render the before/after dot dumps to SVG via Graphviz dot.",
+        help="No render the before/after dot dumps to SVG via Graphviz dot.",
     )
     parser.add_argument(
         "--before-svg",
-        help="Output path for the before-optimization SVG. Defaults to before-dot with .svg.",
+        default="svg/before_opt.svg",
+        help="Output path for the before-optimization SVG. Defaults to %(default)s.",
     )
     parser.add_argument(
         "--after-svg",
-        help="Output path for the after-optimization SVG. Defaults to after-dot with .svg.",
+        default="svg/after_opt.svg",
+        help="Output path for the after-optimization SVG. Defaults to %(default)s.",
     )
 
     parser.add_argument(
-        "--binary-output",
-        default=str(DEFAULT_BINARY_OUTPUT),
-        help="Output path for the compiled binary. Defaults to %(default)s.",
+        "--binary-out",
+        default=DEFAULT_BINARY_OUT,
+        help="Output path for the binary out. Defaults to %(default)s.",
     )
     parser.add_argument(
         "--opt-level",
@@ -92,24 +111,26 @@ def exec_command(command):
 
 
 def validate_args(args):
-    if not args.generate_svg and (args.before_svg or args.after_svg):
-        raise ValueError("--before-svg and --after-svg require --generate-svg.")
-
-    if args.generate_svg and shutil.which("dot") is None:
+    if not args.no_svg and shutil.which("dot") is None:
         raise FileNotFoundError("Graphviz 'dot' executable was not found in PATH.")
 
 
 def exec_clang(args):
+    workdir = Path(args.workdir).expanduser()
     plugin_path = Path(args.plugin_path).expanduser()
-    source_path = Path(args.source).expanduser()
-    binary_output = Path(args.binary_output).expanduser()
-    before_dot = Path(args.before_dot).expanduser()
-    after_dot = Path(args.after_dot).expanduser()
+    binary_out = workdir/args.binary_out
+    source_path = workdir/args.source
+    before_dot = workdir/args.before_dot
+    after_dot = workdir/args.after_dot
+    before_ll = workdir/args.before_ll
+    after_ll = workdir/args.after_ll
 
     require_existing_file(source_path, "Source file")
     require_existing_file(plugin_path, "Plugin library")
 
-    ensure_parent_dir(binary_output)
+    ensure_parent_dir(binary_out)
+    ensure_parent_dir(before_ll)
+    ensure_parent_dir(after_ll)
     ensure_parent_dir(before_dot)
     ensure_parent_dir(after_dot)
 
@@ -124,6 +145,10 @@ def exec_clang(args):
         f"-dumper-pass-dot-out-before-opt={before_dot}",
         "-mllvm",
         f"-dumper-pass-dot-out-after-opt={after_dot}",
+        "-mllvm",
+        f"-dumper-pass-ir-out-before-opt={before_ll}",
+        "-mllvm",
+        f"-dumper-pass-ir-out-after-opt={after_ll}",
     ]
 
     command.extend(args.extra_clang_arg)
@@ -132,16 +157,17 @@ def exec_clang(args):
             str(source_path),
             f"-{args.opt_level}",
             "-o",
-            str(binary_output),
+            str(binary_out),
         ]
     )
 
     exec_command(command)
 
 
-def generate_svg(dot, svg):
-    path_dot = Path(dot).expanduser()
-    path_svg = Path(svg).expanduser() if svg else path_dot.with_suffix(".svg")
+def generate_svg(workdir, dot, svg):
+    workdir = Path(workdir).expanduser()
+    path_dot = workdir/dot
+    path_svg = workdir/svg
 
     require_existing_file(path_dot, "Before dot dump")
     ensure_parent_dir(path_svg)
@@ -154,9 +180,9 @@ def main():
     validate_args(args)
     exec_clang(args)
 
-    if args.generate_svg:
-        generate_svg(args.before_dot, args.before_svg)
-        generate_svg(args.after_dot, args.after_svg)
+    if not args.no_svg:
+        generate_svg(args.workdir, args.before_dot, args.before_svg)
+        generate_svg(args.workdir, args.after_dot, args.after_svg)
 
     return 0
 
