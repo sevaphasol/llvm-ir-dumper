@@ -1,0 +1,65 @@
+---
+Language:        Cpp
+ColumnLimit:     98
+
+SortIncludes:    true
+AlwaysBreakTemplateDeclarations: Yes
+IndentWidth:     4
+AlwaysBreakAfterDefinitionReturnType: All
+AlwaysBreakAfterReturnType: All
+SpaceAfterTemplateKeyword: false
+SpacesInParentheses: true
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+MaxEmptyLinesToKeep: 1
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+IndentCaseLabels: true
+IndentCaseBlocks: true
+
+BinPackArguments: false
+BinPackParameters: false
+
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+AlignAfterOpenBracket: Align
+
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+BreakBeforeBraces: Custom
+
+BraceWrapping:
+  AfterStruct: true
+  AfterFunction: true
+  BeforeElse: false
+  AfterControlStatement: Always
+  IndentBraces: false
+
+AlignOperands:   Align
+BreakBeforeBinaryOperators: None
+
+AllowShortEnumsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortLambdasOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
