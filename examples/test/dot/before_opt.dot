@@ -1,0 +1,37 @@
+digraph "examples/test/test.c" {
+  graph [pad=0.3, rankdir=UB, compound=true, overlap=false, nodesep=0.35, ranksep=0.7, splines=true];
+  node [fontname="SF Pro Text Bold 10", fontsize=15];
+  edge [fontname="SF Pro Text Bold 10", fontsize=15];
+subgraph cluster_func_1 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="main";
+  subgraph cluster_func_1_bb_1 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a4a4a4";
+    color="#000000";
+    penwidth=2;
+    fontsize=0;
+    fontname="";
+    label="";
+    n0x6213ceca50b0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="alloca"];
+    n0x6213cec4a930 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="store"];
+    n0x6213ceca6030 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    u0x6213ceca5090 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 1"];
+    u0x6213cec4a8f0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 0"];
+    u0x6213ceca6010 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 42"];
+  }
+}
+n0x6213ceca50b0 -> n0x6213cec4a930 [color="#ff8800", weight=10000, penwidth=5];
+n0x6213cec4a930 -> n0x6213ceca6030 [color="#ff8800", weight=10000, penwidth=5];
+n0x6213ceca50b0 -> n0x6213cec4a930 [color="#00b3ff", weight=1, penwidth=2, label="%1"];
+u0x6213ceca5090 -> n0x6213ceca50b0 [color="#00b3ff", weight=1, penwidth=2];
+u0x6213cec4a8f0 -> n0x6213cec4a930 [color="#00b3ff", weight=1, penwidth=2];
+u0x6213ceca6010 -> n0x6213ceca6030 [color="#00b3ff", weight=1, penwidth=2];
+}

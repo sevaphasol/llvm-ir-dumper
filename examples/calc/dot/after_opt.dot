@@ -1,0 +1,46 @@
+digraph "examples/calc/calc.c" {
+  graph [pad=0.3, rankdir=UB, compound=true, overlap=false, nodesep=0.35, ranksep=0.7, splines=true];
+  node [fontname="SF Pro Text Bold 10", fontsize=15];
+  edge [fontname="SF Pro Text Bold 10", fontsize=15];
+subgraph cluster_func_1 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="main";
+  subgraph cluster_func_1_bb_1 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a4a4a4";
+    color="#000000";
+    penwidth=2;
+    fontsize=0;
+    fontname="";
+    label="";
+    n0x645f14ddd730 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    n0x645f14d572d0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    u0x645f14ddd6d0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="ptr @.str"];
+    u0x645f14ddd6f0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 56"];
+    u0x645f14ddd710 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="ptr @printf"];
+    u0x645f14d572b0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 0"];
+  }
+}
+subgraph cluster_func_2 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="printf";
+}
+n0x645f14ddd730 -> n0x645f14d572d0 [color="#ff8800", weight=10000, penwidth=5];
+u0x645f14ddd6d0 -> n0x645f14ddd730 [color="#00b3ff", weight=1, penwidth=2];
+u0x645f14ddd6f0 -> n0x645f14ddd730 [color="#00b3ff", weight=1, penwidth=2];
+u0x645f14ddd710 -> n0x645f14ddd730 [color="#00b3ff", weight=1, penwidth=2];
+u0x645f14d572b0 -> n0x645f14d572d0 [color="#00b3ff", weight=1, penwidth=2];
+}
