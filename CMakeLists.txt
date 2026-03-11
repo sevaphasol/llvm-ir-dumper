@@ -12,8 +12,8 @@ add_definitions( ${LLVM_DEFINITIONS} )
 set( SOURCES_DIR "sources" )
 set( INCLUDE_DIR "include" )
 
-set( LLVM_IR_DUMPER_DIR llvm_ir_dumper )
-set( LLVM_IR_DUMPER_SOURCES_DIR "${SOURCES_DIR}/${LLVM_IR_DUMPER_DIR}" )
+set( LLVM_IR_DUMPER_SOURCES_DIR "${SOURCES_DIR}/llvm_ir_dumper" )
+set( DOT_GRAPH_SOURCES_DIR      "${SOURCES_DIR}/dot_graph" )
 
 file(
     GLOB_RECURSE
@@ -21,10 +21,17 @@ file(
     ${LLVM_IR_DUMPER_SOURCES_DIR}/*.cpp
 )
 
+file(
+    GLOB_RECURSE
+    DOT_GRAPH_SOURCES
+    ${DOT_GRAPH_SOURCES_DIR}/*.cpp
+)
+
 add_library(
     LLVMIRDumper
     SHARED
     ${LLVM_IR_DUMPER_SOURCES}
+    ${DOT_GRAPH_SOURCES}
 )
 
 target_include_directories(

@@ -1,270 +1,426 @@
+#include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/CFG.h"
-#include "llvm/IR/Constants.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/Instruction.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/ModuleSlotTracker.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Support/raw_ostream.h"
 
+#include <sstream>
+#include <string>
+
+#include "dot_graph/graph.h"
 #include "llvm_ir_dumper/dumper_pass.h"
 
 namespace llvm_ir_dumper {
 
-llvm::PreservedAnalyses
-DumperPass::run( llvm::Module& M, llvm::ModuleAnalysisManager& AM )
+DumperPass::DumperPass( const std::string& dot_out, const std::string& ll_out )
+    : dot_out_( dot_out ), ll_out_( ll_out )
 {
-    std::error_code EC;
+}
 
-    llvm::raw_fd_ostream dot_dump( dot_out_, EC );
-    if ( EC )
+llvm::PreservedAnalyses
+DumperPass::run( llvm::Module& module, llvm::ModuleAnalysisManager& /*unused*/ )
+{
+    std::error_code error_code;
+
+    llvm::raw_fd_ostream dot_dump( dot_out_, error_code );
+    if ( error_code )
     {
         llvm::errs() << "[dumper-pass] unable to open dot_dump file (" << dot_out_
-                     << "): " << EC.message() << "\n";
+                     << "): " << error_code.message() << "\n";
         return llvm::PreservedAnalyses::all();
     }
 
-    llvm::raw_fd_ostream ll_dump( ll_out_, EC );
-    if ( EC )
+    llvm::raw_fd_ostream ll_dump( ll_out_, error_code );
+    if ( error_code )
     {
         llvm::errs() << "[dumper-pass] unable to open ll_dump file (" << ll_out_
-                     << "): " << EC.message() << "\n";
+                     << "): " << error_code.message() << "\n";
         return llvm::PreservedAnalyses::all();
     }
 
-    dumpModule( M, ll_dump, dot_dump );
+    dumpModule( module, ll_dump, dot_dump );
 
     return llvm::PreservedAnalyses::all();
-};
+}
+
+std::string
+DumperPass::formatOperandLabel( const llvm::Value& value )
+{
+    std::string              label;
+    llvm::raw_string_ostream os( label );
+    value.printAsOperand( os );
+    return os.str();
+}
+
+std::string
+DumperPass::formatSlotLabel( int slot )
+{
+    return "%" + std::to_string( slot );
+}
+
+std::string
+DumperPass::getNodeId( std::string_view prefix, const void* ptr )
+{
+    std::ostringstream os;
+    os << prefix << ptr;
+    return os.str();
+}
+
+std::string
+DumperPass::getValueNodeId( const llvm::Value* value )
+{
+    return getNodeId( "n", value );
+}
+
+std::string
+DumperPass::getUseNodeId( const llvm::Use* use )
+{
+    return getNodeId( "u", use );
+}
+
+std::string
+DumperPass::getFunctionClusterId( std::size_t func_index )
+{
+    return "cluster_func_" + std::to_string( func_index );
+}
+
+std::string
+DumperPass::getBasicBlockClusterId( std::size_t func_index, std::size_t basic_block_index )
+{
+    return "cluster_func_" + std::to_string( func_index ) + "_bb_" +
+           std::to_string( basic_block_index );
+}
 
 void
-DumperPass::dumpModule( llvm::Module&         M,
+DumperPass::dumpModule( llvm::Module&         module,
                         llvm::raw_fd_ostream& ll_dump,
                         llvm::raw_fd_ostream& dot_dump )
 {
-    M.print( ll_dump, nullptr );
+    module.print( ll_dump, nullptr );
 
-    llvm::ModuleSlotTracker MST( &M );
+    dot_graph::Graph graph( module.getName().str() );
+    graph.graphAttributes()
+        .setRaw( "pad", GraphInfo.pad )
+        .setRaw( "rankdir", GraphInfo.rankdir )
+        .setBool( "compound", GraphInfo.compound )
+        .setBool( "overlap", GraphInfo.overlap )
+        .setRaw( "nodesep", GraphInfo.nodesep )
+        .setRaw( "ranksep", GraphInfo.ranksep )
+        .setRaw( "splines", GraphInfo.splines );
+    graph.nodeAttributes()
+        .setFontName( GraphInfo.node_font_name )
+        .setFontSize( GraphInfo.node_font_size );
+    graph.edgeAttributes()
+        .setFontName( GraphInfo.edge_font_name )
+        .setFontSize( GraphInfo.edge_font_size );
 
-    dot_dump << "digraph \"" << M.getName() << "\" {\n"
-             << "  graph [pad=0.3];\n"
-             << "  rankdir=UB;\n"
-             //  << "  newrank=true;\n"
-             //  << "  splines=ortho;\n"
-             << "  compound=true;\n"
-             << "  overlap=false;\n"
-             << "  nodesep=0.35;\n"
-             << "  ranksep=0.7;\n"
-             << "  node  [fontname=\"SF Pro Text Bold 10\", fontsize=11];\n"
-             << "  edge  [fontname=\"SF Pro Text Bold 10\", fontsize=10];\n";
+    fillFuncsInfo( module );
+    dumpFuncs( module, graph );
 
-    std::size_t func_cnt = 0;
-
-    for ( auto& F : M )
-    {
-        MST.incorporateFunction( F );
-        dumpFunc( F, MST, dot_dump, func_cnt );
-    }
-
-    dot_dump << "}\n";
+    dot_dump << static_cast<std::string>( graph );
 }
 
 void
-DumperPass::dumpFunc( llvm::Function&          F,
-                      llvm::ModuleSlotTracker& MST,
-                      llvm::raw_fd_ostream&    dot_dump,
-                      std::size_t&             func_cnt )
+DumperPass::fillFuncsInfo( llvm::Module& module )
 {
-    func_cnt++;
+    funcs_info_.clear();
 
-    dot_dump << "subgraph cluster_" << std::hash<std::string>{}( std::string( F.getName() ) )
-             << " {\n"
-             << "  shape=\"box\";\n"
-             << "  style=\"rounded, filled\";\n"
-             << "  color=\"#000000ff\";\n"
-             << "  penwidth=2;\n"
-             << "  fillcolor=\"#e3e3e3ff\";"
-             << "  labelloc=\"t\";\n"
-             << "  labeljust=\"l\";\n"
-             << "  fontsize=13;\n"
-             << "  fontname=\"SF Pro Text Bold 10\";\n"
-             << "  label=<<B>" << F.getName() << "</B>>;\n";
-
-    std::size_t basic_block_cnt = 0;
-
-    for ( auto& B : F )
+    std::size_t func_index = 0;
+    for ( auto& func : module )
     {
-        dumpBasicBlock( B, MST, dot_dump, func_cnt, basic_block_cnt );
+        ++func_index;
+
+        FuncInfoEntry entry;
+        entry.cluster_id = getFunctionClusterId( func_index );
+
+        if ( !func.empty() && !func.getEntryBlock().empty() )
+        {
+            entry.anchor_id = getValueNodeId( &func.getEntryBlock().front() );
+        }
+
+        funcs_info_.emplace( &func, entry );
     }
+}
 
-    for ( auto& B : F )
+void
+DumperPass::dumpFuncs( llvm::Module& module, dot_graph::Graph& graph )
+{
+    llvm::ModuleSlotTracker slot_tracker( &module );
+
+    std::size_t func_index = 0;
+    for ( auto& func : module )
     {
-        auto first_non_phi_it = B.getFirstNonPHIIt();
-        if ( first_non_phi_it == B.begin() )
-        {
-            auto* first_inst = &*B.begin();
-            for ( auto* pred : llvm::predecessors( &B ) )
-            {
-                dot_dump << "n" << pred->getTerminator() << "->" << "n" << first_inst
-                         << " [color=\"#ea00ffff\", weight=10000, penwidth=5];\n";
-            }
-        } else
-        {
-            for ( auto I_it = B.begin(); I_it != first_non_phi_it; ++I_it )
-            {
-                auto* phi = llvm::dyn_cast<llvm::PHINode>( I_it );
-                assert( phi != nullptr );
+        ++func_index;
+        slot_tracker.incorporateFunction( func );
+        dumpFunc( func, slot_tracker, graph, func_index );
+    }
+}
 
-                std::size_t n_incoming_values = phi->getNumIncomingValues();
-                for ( std::size_t i = 0; i < n_incoming_values; ++i )
-                {
-                    dot_dump << "n" << phi->getIncomingBlock( i )->getTerminator() << "->" << "n"
-                             << phi
-                             << " [color=\"#ea00ffff\", weight=10000, penwidth=5, label=\"";
-                    phi->getIncomingValue( i )->printAsOperand( dot_dump );
-                    dot_dump << "\"];\n";
-                }
-            }
+void
+DumperPass::dumpFunc( llvm::Function&          func,
+                      llvm::ModuleSlotTracker& slot_tracker,
+                      dot_graph::Graph&        graph,
+                      std::size_t              func_index )
+{
+    auto& function_subgraph = graph.addSubgraph( funcs_info_.at( &func ).cluster_id )
+                                  .setShape( FunctionSubgraph.shape )
+                                  .setStyle( FunctionSubgraph.style )
+                                  .setFillColor( FunctionSubgraph.fill_color )
+                                  .setColor( FunctionSubgraph.color )
+                                  .setPenWidth( FunctionSubgraph.pen_width )
+                                  .setFontSize( FunctionSubgraph.font_size )
+                                  .setFontName( FunctionSubgraph.font_name )
+                                  .setQuotedLabel( func.getName().str() );
+
+    dumpBasicBlocks( func, slot_tracker, graph, function_subgraph, func_index );
+    dumpControlFlowEdges( func, graph );
+}
+
+void
+DumperPass::dumpBasicBlocks( llvm::Function&          func,
+                             llvm::ModuleSlotTracker& slot_tracker,
+                             dot_graph::Graph&        graph,
+                             dot_graph::Subgraph&     function_subgraph,
+                             std::size_t              func_index )
+{
+    std::size_t basic_block_index = 0;
+
+    for ( auto& basic_block : func )
+    {
+        ++basic_block_index;
+
+        auto& block_subgraph =
+            function_subgraph
+                .addSubgraph( getBasicBlockClusterId( func_index, basic_block_index ) )
+                .setShape( BasicBlockSubgraph.shape )
+                .setStyle( BasicBlockSubgraph.style )
+                .setFillColor( BasicBlockSubgraph.fill_color )
+                .setColor( BasicBlockSubgraph.color )
+                .setPenWidth( BasicBlockSubgraph.pen_width )
+                .setFontSize( BasicBlockSubgraph.font_size )
+                .setFontName( BasicBlockSubgraph.font_name )
+                .setQuotedLabel( "" );
+
+        dumpBasicBlock( basic_block, slot_tracker, graph, block_subgraph );
+    }
+}
+
+void
+DumperPass::dumpControlFlowEdges( llvm::Function& func, dot_graph::Graph& graph )
+{
+    for ( auto& basic_block : func )
+    {
+        auto first_non_phi_it = basic_block.getFirstNonPHIIt();
+
+        first_non_phi_it == basic_block.begin()
+            ? dumpControlFlowEdgesWithoutPhi( basic_block, graph )
+            : dumpControlFlowEdgesWithPhi( basic_block, graph, first_non_phi_it );
+    }
+}
+
+void
+DumperPass::dumpControlFlowEdgesWithoutPhi( llvm::BasicBlock& basic_block,
+                                            dot_graph::Graph& graph )
+{
+    auto* first_inst = &*basic_block.begin();
+
+    for ( auto* pred : llvm::predecessors( &basic_block ) )
+    {
+        graph.addEdge( getValueNodeId( pred->getTerminator() ), getValueNodeId( first_inst ) )
+            .setColor( ControlFlowEdge.color )
+            .setWeight( ControlFlowEdge.weight )
+            .setPenWidth( ControlFlowEdge.pen_width );
+    }
+}
+
+void
+DumperPass::dumpControlFlowEdgesWithPhi(
+    llvm::BasicBlock&                         basic_block,
+    dot_graph::Graph&                         graph,
+    llvm::BranchInst::InstListType::iterator& first_non_phi_it )
+{
+    for ( auto I_it = basic_block.begin(); I_it != first_non_phi_it; ++I_it )
+    {
+        auto* phi = llvm::cast<llvm::PHINode>( &*I_it );
+
+        for ( unsigned i = 0; i < phi->getNumIncomingValues(); ++i )
+        {
+            graph
+                .addEdge( getValueNodeId( phi->getIncomingBlock( i )->getTerminator() ),
+                          getValueNodeId( phi ) )
+                .setColor( ControlFlowEdge.color )
+                .setWeight( ControlFlowEdge.weight )
+                .setPenWidth( ControlFlowEdge.pen_width )
+                .setQuotedLabel( formatOperandLabel( *phi->getIncomingValue( i ) ) );
         }
     }
-
-    dot_dump << "}\n";
 }
 
 void
-DumperPass::dumpBasicBlock( llvm::BasicBlock&        B,
-                            llvm::ModuleSlotTracker& MST,
-                            llvm::raw_fd_ostream&    dot_dump,
-                            std::size_t              func_cnt,
-                            std::size_t&             basic_block_cnt )
+DumperPass::dumpBasicBlock( llvm::BasicBlock&        basic_block,
+                            llvm::ModuleSlotTracker& slot_tracker,
+                            dot_graph::Graph&        graph,
+                            dot_graph::Subgraph&     block_subgraph )
 {
-    basic_block_cnt++;
+    dumpInstrNodes( basic_block, block_subgraph );
+    dumpInstrSeqEdges( basic_block, graph );
+    dumpDataFlowEdges( basic_block, slot_tracker, graph, block_subgraph );
+}
 
-    dot_dump << "subgraph cluster_" << func_cnt << "_" << basic_block_cnt << " {\n"
-             << "  shape=\"box\";\n"
-             << "  style=\"rounded, filled\";\n"
-             << "  color=\"#000000ff\";\n"
-             << "  penwidth=2;\n"
-             << "  fillcolor=\"#a4a4a4ff\";"
-             << "  labelloc=\"t\";\n"
-             << "  labeljust=\"l\";\n"
-             << "  fontsize=13;\n"
-             << "  fontname=\"SF Pro Text Bold 10\";\n"
-             << "  label=\"\";\n";
-
-    for ( auto& I : B )
+void
+DumperPass::dumpInstrNodes( llvm::BasicBlock& basic_block, dot_graph::Subgraph& block_subgraph )
+{
+    for ( auto& instr : basic_block )
     {
-        dot_dump << "n" << &I
-                 << "[shape=box, style=\"rounded, filled\", fillcolor=\"#E8EEF9\", "
-                    "color=\"#1f1d31ff\", fontcolor=\"#000000\", label=\""
-                 << I.getOpcodeName() << "\"];\n";
+        block_subgraph.addNode( getValueNodeId( &instr ) )
+            .setShape( InstrNode.shape )
+            .setStyle( InstrNode.style )
+            .setFillColor( InstrNode.fill_color )
+            .setColor( InstrNode.color )
+            .setFontColor( InstrNode.font_color )
+            .setQuotedLabel( instr.getOpcodeName() );
     }
+}
 
-    for ( auto I_it = B.begin(); I_it != B.end(); ++I_it )
+void
+DumperPass::dumpInstrSeqEdges( llvm::BasicBlock& basic_block, dot_graph::Graph& graph )
+{
+    for ( auto I_it = basic_block.begin(); I_it != basic_block.end(); ++I_it )
     {
-        if ( std::next( I_it, 1 ) == B.end() )
+        auto next_I_it = std::next( I_it );
+        if ( next_I_it == basic_block.end() )
         {
             break;
         }
-        dot_dump << "n" << &( *I_it ) << "->" << "n" << &( *std::next( I_it, 1 ) )
-                 << " [color=\"#FF0000\", weight=1000, penwidth=3];\n";
-    }
 
-    for ( auto I_it = B.begin(); I_it != B.end(); ++I_it )
+        graph.addEdge( getValueNodeId( &*I_it ), getValueNodeId( &*next_I_it ) )
+            .setColor( ControlFlowEdge.color )
+            .setWeight( ControlFlowEdge.weight )
+            .setPenWidth( ControlFlowEdge.pen_width );
+    }
+}
+
+void
+DumperPass::dumpDataFlowEdges( llvm::BasicBlock&        basic_block,
+                               llvm::ModuleSlotTracker& slot_tracker,
+                               dot_graph::Graph&        graph,
+                               dot_graph::Subgraph&     block_subgraph )
+{
+    for ( auto I_it = basic_block.begin(); I_it != basic_block.end(); ++I_it )
     {
-        for ( auto& U : I_it->uses() )
+        auto* instr = &*I_it;
+
+        bool processed_call = false;
+        dumpInstrUsers( basic_block, instr, slot_tracker, graph, processed_call );
+        dumpInstrOperands( instr, slot_tracker, graph, block_subgraph, processed_call );
+    }
+}
+
+void
+DumperPass::dumpInstrUsers( llvm::BasicBlock&        basic_block,
+                            llvm::Instruction*       instr,
+                            llvm::ModuleSlotTracker& slot_tracker,
+                            dot_graph::Graph&        graph,
+                            bool&                    processed_call )
+{
+    for ( auto& usage : instr->uses() )
+    {
+        auto* user = usage.getUser();
+        auto& edge = graph.addEdge( getValueNodeId( instr ), getValueNodeId( user ) )
+                         .setColor( DataFlowEdge.color )
+                         .setWeight( DataFlowEdge.weight )
+                         .setPenWidth( DataFlowEdge.pen_width );
+
+        int slot = slot_tracker.getLocalSlot( instr );
+        if ( slot != -1 )
         {
-            llvm::User* user = U.getUser();
-
-            int slot = MST.getLocalSlot( &( *I_it ) );
-            dot_dump << "n" << &( *I_it ) << "->" << "n" << user << " [color=\"#0000FF\"";
-            if ( slot != -1 )
-            {
-                dot_dump << ", label=\"%" << slot << "\"";
-            }
-
-            dot_dump << "];\n";
-        }
-
-        bool no_dump_func_operand_for_call = false;
-
-        if ( auto* CB = llvm::dyn_cast<llvm::CallBase>( I_it ) )
-        {
-            if ( auto* callee = CB->getCalledFunction() )
-            {
-                if ( !callee->isDeclaration() )
-                {
-                    no_dump_func_operand_for_call = true;
-
-                    dot_dump << "n" << &*I_it << "->"
-                             << "n" << &callee->getEntryBlock().front()
-                             << " [color=\"#ff8800\", style=\"dashed\", penwidth=3"
-                             << ", lhead=\"cluster_"
-                             << std::hash<std::string>{}( std::string( callee->getName() ) )
-                             << "\""
-                             << ", constraint=false"
-                             << "];\n";
-                }
-            }
-        }
-
-        unsigned operand_index = 0;
-
-        for ( auto& U : I_it->operands() )
-        {
-            llvm::Value* use = U.get();
-
-            if ( no_dump_func_operand_for_call && llvm::dyn_cast<llvm::Function>( use ) )
-            {
-                continue;
-            }
-
-            if ( llvm::dyn_cast<llvm::PHINode>( I_it ) )
-            {
-                continue;
-            }
-
-            if ( !llvm::dyn_cast<llvm::Instruction>( use ) )
-            {
-                dot_dump << "n" << &U
-                         << "[shape=box, style=\"rounded, filled\", fillcolor=\"#00EEF9\", "
-                            "color=\"#1f1d31ff\", fontcolor=\"#000000\", label=\"";
-                if ( auto ConstInt = llvm::dyn_cast<llvm::ConstantInt>( use ) )
-                {
-                    use->getType()->print( dot_dump );
-                    dot_dump << " ";
-                    ConstInt->getValue().print( dot_dump, true );
-                } else
-                {
-                    use->printAsOperand( dot_dump );
-                }
-                dot_dump << "\"];\n";
-
-                int slot = MST.getLocalSlot( use );
-
-                dot_dump << "n" << &U << "->"
-                         << "n" << &( *I_it ) << " [color=\"#00FF00\"";
-                if ( slot != -1 )
-                {
-                    dot_dump << ", label=\"%" << slot << "\"";
-                }
-
-                dot_dump << "];\n";
-
-                continue;
-            }
-
-            int slot = MST.getLocalSlot( use );
-            dot_dump << "n" << use << "->"
-                     << "n" << &( *I_it ) << " [color=\"#00FF00\"";
-            if ( slot != -1 )
-            {
-                dot_dump << ", label=\"%" << slot << "\"";
-            }
-
-            dot_dump << "];\n";
+            edge.setQuotedLabel( formatSlotLabel( slot ) );
         }
     }
 
-    dot_dump << "}\n";
+    if ( auto* call_base = llvm::dyn_cast<llvm::CallBase>( instr ) )
+    {
+        dumpCallInstr( basic_block, call_base, graph, processed_call );
+    }
+}
+
+void
+DumperPass::dumpInstrOperands( llvm::Instruction*       instr,
+                               llvm::ModuleSlotTracker& slot_tracker,
+                               dot_graph::Graph&        graph,
+                               dot_graph::Subgraph&     block_subgraph,
+                               bool                     processed_call )
+{
+    if ( llvm::isa<llvm::PHINode>( instr ) )
+    {
+        return;
+    }
+
+    for ( auto& usage : instr->operands() )
+    {
+        auto* operand = usage.get();
+
+        if ( llvm::isa<llvm::Instruction>( operand ) ||
+             processed_call && llvm::isa<llvm::Function>( operand ) )
+        {
+            continue;
+        }
+
+        block_subgraph.addNode( getUseNodeId( &usage ) )
+            .setShape( OperandNode.shape )
+            .setStyle( OperandNode.style )
+            .setFillColor( OperandNode.fill_color )
+            .setColor( OperandNode.color )
+            .setFontColor( OperandNode.font_color )
+            .setQuotedLabel( formatOperandLabel( *operand ) );
+
+        auto& edge = graph.addEdge( getUseNodeId( &usage ), getValueNodeId( instr ) )
+                         .setColor( DataFlowEdge.color )
+                         .setWeight( DataFlowEdge.weight )
+                         .setPenWidth( DataFlowEdge.pen_width );
+
+        int slot = slot_tracker.getLocalSlot( operand );
+        if ( slot != -1 )
+        {
+            edge.setQuotedLabel( formatSlotLabel( slot ) );
+        }
+    }
+}
+
+void
+DumperPass::dumpCallInstr( llvm::BasicBlock& basic_block,
+                           llvm::CallBase*   call_base,
+                           dot_graph::Graph& graph,
+                           bool&             processed_call )
+{
+    llvm::Function* callee = call_base->getCalledFunction();
+    if ( callee == nullptr || callee->isDeclaration() )
+    {
+        return;
+    }
+
+    auto callee_entry_it = funcs_info_.find( callee );
+    if ( callee_entry_it == funcs_info_.end() || !callee_entry_it->second.anchor_id.has_value() )
+    {
+        return;
+    }
+
+    processed_call = true;
+
+    auto& call_edge =
+        graph.addEdge( getValueNodeId( call_base ), *callee_entry_it->second.anchor_id )
+            .setColor( ControlFlowEdge.color )
+            .setPenWidth( ControlFlowEdge.pen_width )
+            .setStyle( "dashed" )
+            .setConstraint( false );
+
+    if ( callee != basic_block.getParent() )
+    {
+        call_edge.setQuoted( "lhead", callee_entry_it->second.cluster_id );
+    }
 }
 
 } // namespace llvm_ir_dumper
