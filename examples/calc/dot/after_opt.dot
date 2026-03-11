@@ -1,5 +1,5 @@
 digraph "examples/calc/calc.c" {
-  graph [pad=0.3, rankdir=UB, compound=true, overlap=false, nodesep=0.35, ranksep=0.7, splines=true];
+  graph [pad=0.3, rankdir=TB, compound=true, overlap=false, nodesep=0.9, ranksep=1.3, splines=true];
   node [fontname="SF Pro Text Bold 10", fontsize=15];
   edge [fontname="SF Pro Text Bold 10", fontsize=15];
 subgraph cluster_func_1 {
@@ -17,15 +17,15 @@ subgraph cluster_func_1 {
     fillcolor="#a4a4a4";
     color="#000000";
     penwidth=2;
-    fontsize=0;
-    fontname="";
-    label="";
-    n0x645f14ddd730 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
-    n0x645f14d572d0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
-    u0x645f14ddd6d0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="ptr @.str"];
-    u0x645f14ddd6f0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 56"];
-    u0x645f14ddd710 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="ptr @printf"];
-    u0x645f14d572b0 [shape="box", style="rounded, filled", fillcolor="#db4040", color="#000000", fontcolor="#000000", label="i32 0"];
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %0";
+    n0x557bec3a83f0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    n0x557bec339110 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    u0x557bec3a8390 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @.str"];
+    u0x557bec3a83b0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 56"];
+    u0x557bec3a83d0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @printf"];
+    u0x557bec3390f0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
   }
 }
 subgraph cluster_func_2 {
@@ -38,9 +38,9 @@ subgraph cluster_func_2 {
   fontname="SF Pro Text Bold 10";
   label="printf";
 }
-n0x645f14ddd730 -> n0x645f14d572d0 [color="#ff8800", weight=10000, penwidth=5];
-u0x645f14ddd6d0 -> n0x645f14ddd730 [color="#00b3ff", weight=1, penwidth=2];
-u0x645f14ddd6f0 -> n0x645f14ddd730 [color="#00b3ff", weight=1, penwidth=2];
-u0x645f14ddd710 -> n0x645f14ddd730 [color="#00b3ff", weight=1, penwidth=2];
-u0x645f14d572b0 -> n0x645f14d572d0 [color="#00b3ff", weight=1, penwidth=2];
+n0x557bec3a83f0 -> n0x557bec339110 [color="#ff3636", weight=1000, penwidth=3];
+u0x557bec3a8390 -> n0x557bec3a83f0 [color="#00b3ff", weight=1, penwidth=2];
+u0x557bec3a83b0 -> n0x557bec3a83f0 [color="#00b3ff", weight=1, penwidth=2];
+u0x557bec3a83d0 -> n0x557bec3a83f0 [color="#00b3ff", weight=1, penwidth=2];
+u0x557bec3390f0 -> n0x557bec339110 [color="#00b3ff", weight=1, penwidth=2];
 }

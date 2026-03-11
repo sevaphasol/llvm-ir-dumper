@@ -5,6 +5,7 @@
 #include <utility>
 
 namespace dot_graph {
+
 namespace {
 
 inline void

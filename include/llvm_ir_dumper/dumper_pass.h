@@ -44,7 +44,7 @@ class DumperPass : public llvm::PassInfoMixin<DumperPass> {
     };
 
     static constexpr EdgeInfo InstrSeqEdge = {
-        .color     = "#d84343",
+        .color     = "#ff3636",
         .weight    = 1000,
         .pen_width = 3,
     };
@@ -65,7 +65,7 @@ class DumperPass : public llvm::PassInfoMixin<DumperPass> {
     };
 
     static constexpr NodeInfo OperandNode = {
-        .fill_color = "#db4040",
+        .fill_color = "#d66868",
         .color      = "#000000",
         .font_color = "#000000",
         .shape      = "box",
@@ -105,8 +105,8 @@ class DumperPass : public llvm::PassInfoMixin<DumperPass> {
         .fill_color = "#a4a4a4",
         .color      = "#000000",
         .pen_width  = 2,
-        .font_size  = 0,
-        .font_name  = "",
+        .font_size  = 15,
+        .font_name  = "SF Pro Text Bold 10",
         .shape      = "box",
         .style      = "rounded, filled",
     };
@@ -128,11 +128,11 @@ class DumperPass : public llvm::PassInfoMixin<DumperPass> {
 
     static constexpr GraphInfo GraphInfo = {
         .pad            = "0.3",
-        .rankdir        = "UB",
+        .rankdir        = "TB",
         .compound       = true,
         .overlap        = false,
-        .nodesep        = "0.35",
-        .ranksep        = "0.7",
+        .nodesep        = "0.9",
+        .ranksep        = "1.3",
         .node_font_name = "SF Pro Text Bold 10",
         .node_font_size = 15,
         .edge_font_name = "SF Pro Text Bold 10",
@@ -239,10 +239,7 @@ class DumperPass : public llvm::PassInfoMixin<DumperPass> {
                        bool                     processed_call );
 
     void
-    dumpCallInstr( llvm::BasicBlock& basic_block,
-                   llvm::CallBase*   call_base,
-                   dot_graph::Graph& graph,
-                   bool&             processed_call );
+    dumpCallInstr( llvm::CallBase* call_base, dot_graph::Graph& graph, bool& processed_call );
 };
 
 } // namespace llvm_ir_dumper

@@ -3,7 +3,9 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/IR/Metadata.h"
 #include "llvm/IR/ModuleSlotTracker.h"
+#include "llvm/IR/Value.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/raw_ostream.h"
 
@@ -202,7 +204,7 @@ DumperPass::dumpBasicBlocks( llvm::Function&          func,
                 .setPenWidth( BasicBlockSubgraph.pen_width )
                 .setFontSize( BasicBlockSubgraph.font_size )
                 .setFontName( BasicBlockSubgraph.font_name )
-                .setQuotedLabel( "" );
+                .setQuotedLabel( formatOperandLabel( basic_block ) );
 
         dumpBasicBlock( basic_block, slot_tracker, graph, block_subgraph );
     }
@@ -242,19 +244,29 @@ DumperPass::dumpControlFlowEdgesWithPhi(
     dot_graph::Graph&                         graph,
     llvm::BranchInst::InstListType::iterator& first_non_phi_it )
 {
-    for ( auto I_it = basic_block.begin(); I_it != first_non_phi_it; ++I_it )
-    {
-        auto* phi = llvm::cast<llvm::PHINode>( &*I_it );
+    auto& first_phi = llvm::cast<llvm::PHINode>( *basic_block.begin() );
 
-        for ( unsigned i = 0; i < phi->getNumIncomingValues(); ++i )
+    for ( unsigned i = 0; i < first_phi.getNumIncomingValues(); ++i )
+    {
+        auto* predcessor = first_phi.getIncomingBlock( i )->getTerminator();
+        graph.addEdge( getValueNodeId( predcessor ), getValueNodeId( &first_phi ) )
+            .setColor( ControlFlowEdge.color )
+            .setWeight( ControlFlowEdge.weight )
+            .setPenWidth( ControlFlowEdge.pen_width );
+    }
+
+    for ( auto phi_it = std::next( basic_block.begin() ); phi_it != first_non_phi_it; ++phi_it )
+    {
+        auto& phi = llvm::cast<llvm::PHINode>( *phi_it );
+
+        for ( unsigned i = 0; i < phi.getNumIncomingValues(); ++i )
         {
-            graph
-                .addEdge( getValueNodeId( phi->getIncomingBlock( i )->getTerminator() ),
-                          getValueNodeId( phi ) )
-                .setColor( ControlFlowEdge.color )
-                .setWeight( ControlFlowEdge.weight )
-                .setPenWidth( ControlFlowEdge.pen_width )
-                .setQuotedLabel( formatOperandLabel( *phi->getIncomingValue( i ) ) );
+            auto* predcessor = phi.getIncomingBlock( i )->getTerminator();
+            graph.addEdge( getValueNodeId( predcessor ), getValueNodeId( &phi ) )
+                .setColor( DataFlowEdge.color )
+                .setWeight( DataFlowEdge.weight )
+                .setPenWidth( DataFlowEdge.pen_width )
+                .setQuotedLabel( formatOperandLabel( *phi.getIncomingValue( i ) ) );
         }
     }
 }
@@ -288,18 +300,14 @@ DumperPass::dumpInstrNodes( llvm::BasicBlock& basic_block, dot_graph::Subgraph& 
 void
 DumperPass::dumpInstrSeqEdges( llvm::BasicBlock& basic_block, dot_graph::Graph& graph )
 {
-    for ( auto I_it = basic_block.begin(); I_it != basic_block.end(); ++I_it )
+    for ( auto I_it = std::next( basic_block.begin() ); I_it != basic_block.end(); ++I_it )
     {
-        auto next_I_it = std::next( I_it );
-        if ( next_I_it == basic_block.end() )
-        {
-            break;
-        }
+        auto prev_I_it = std::prev( I_it );
 
-        graph.addEdge( getValueNodeId( &*I_it ), getValueNodeId( &*next_I_it ) )
-            .setColor( ControlFlowEdge.color )
-            .setWeight( ControlFlowEdge.weight )
-            .setPenWidth( ControlFlowEdge.pen_width );
+        graph.addEdge( getValueNodeId( &*prev_I_it ), getValueNodeId( &*I_it ) )
+            .setColor( InstrSeqEdge.color )
+            .setWeight( InstrSeqEdge.weight )
+            .setPenWidth( InstrSeqEdge.pen_width );
     }
 }
 
@@ -343,7 +351,7 @@ DumperPass::dumpInstrUsers( llvm::BasicBlock&        basic_block,
 
     if ( auto* call_base = llvm::dyn_cast<llvm::CallBase>( instr ) )
     {
-        dumpCallInstr( basic_block, call_base, graph, processed_call );
+        dumpCallInstr( call_base, graph, processed_call );
     }
 }
 
@@ -363,7 +371,7 @@ DumperPass::dumpInstrOperands( llvm::Instruction*       instr,
     {
         auto* operand = usage.get();
 
-        if ( llvm::isa<llvm::Instruction>( operand ) ||
+        if ( llvm::isa<llvm::Instruction>( operand ) || llvm::isa<llvm::BasicBlock>( operand ) ||
              processed_call && llvm::isa<llvm::Function>( operand ) )
         {
             continue;
@@ -391,8 +399,7 @@ DumperPass::dumpInstrOperands( llvm::Instruction*       instr,
 }
 
 void
-DumperPass::dumpCallInstr( llvm::BasicBlock& basic_block,
-                           llvm::CallBase*   call_base,
+DumperPass::dumpCallInstr( llvm::CallBase*   call_base,
                            dot_graph::Graph& graph,
                            bool&             processed_call )
 {
@@ -416,11 +423,6 @@ DumperPass::dumpCallInstr( llvm::BasicBlock& basic_block,
             .setPenWidth( ControlFlowEdge.pen_width )
             .setStyle( "dashed" )
             .setConstraint( false );
-
-    if ( callee != basic_block.getParent() )
-    {
-        call_edge.setQuoted( "lhead", callee_entry_it->second.cluster_id );
-    }
 }
 
 } // namespace llvm_ir_dumper
