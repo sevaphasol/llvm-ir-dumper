@@ -2,7 +2,7 @@ digraph "examples/hello/hello.c" {
   graph [pad=0.3, rankdir=TB, compound=true, overlap=false, nodesep=0.9, ranksep=1.3, splines=true];
   node [fontname="SF Pro Text Bold 10", fontsize=15];
   edge [fontname="SF Pro Text Bold 10", fontsize=15];
-subgraph cluster_func_1 {
+subgraph cluster_func_0 {
   shape="box";
   style="rounded, filled";
   fillcolor="#e3e3e3";
@@ -11,7 +11,7 @@ subgraph cluster_func_1 {
   fontsize=20;
   fontname="SF Pro Text Bold 10";
   label="func";
-  subgraph cluster_func_1_bb_1 {
+  subgraph cluster_func_0_bb_0 {
     shape="box";
     style="rounded, filled";
     fillcolor="#a4a4a4";
@@ -20,16 +20,16 @@ subgraph cluster_func_1 {
     fontsize=15;
     fontname="SF Pro Text Bold 10";
     label="label %1";
-    n0x6549de716f50 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="alloca"];
-    n0x6549de754d40 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="store"];
-    n0x6549de794170 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="load"];
-    n0x6549de6582e0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
-    n0x6549de716d40 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
-    u0x6549de716f30 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 1"];
-    u0x6549de754d00 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 %0"];
-    u0x6549de6582c0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
+    node_0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="alloca"];
+    node_1 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="store"];
+    node_2 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="load"];
+    node_3 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_4 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_14 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 1"];
+    node_15 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 %0"];
+    node_16 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
   }
-  subgraph cluster_func_1_bb_2 {
+  subgraph cluster_func_0_bb_1 {
     shape="box";
     style="rounded, filled";
     fillcolor="#a4a4a4";
@@ -38,12 +38,12 @@ subgraph cluster_func_1 {
     fontsize=15;
     fontname="SF Pro Text Bold 10";
     label="label %5";
-    n0x6549de795010 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
-    n0x6549de795090 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
-    u0x6549de794fd0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @.str"];
-    u0x6549de794ff0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @printf"];
+    node_5 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_6 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_17 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @.str"];
+    node_18 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @printf"];
   }
-  subgraph cluster_func_1_bb_3 {
+  subgraph cluster_func_0_bb_2 {
     shape="box";
     style="rounded, filled";
     fillcolor="#a4a4a4";
@@ -52,12 +52,12 @@ subgraph cluster_func_1 {
     fontsize=15;
     fontname="SF Pro Text Bold 10";
     label="label %7";
-    n0x6549de795220 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
-    n0x6549de7952a0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
-    u0x6549de7951e0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @.str.1"];
-    u0x6549de795200 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @printf"];
+    node_7 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_8 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_19 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @.str.1"];
+    node_20 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @printf"];
   }
-  subgraph cluster_func_1_bb_4 {
+  subgraph cluster_func_0_bb_3 {
     shape="box";
     style="rounded, filled";
     fillcolor="#a4a4a4";
@@ -66,10 +66,10 @@ subgraph cluster_func_1 {
     fontsize=15;
     fontname="SF Pro Text Bold 10";
     label="label %9";
-    n0x6549de764e40 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    node_9 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
   }
 }
-subgraph cluster_func_2 {
+subgraph cluster_func_1 {
   shape="box";
   style="rounded, filled";
   fillcolor="#e3e3e3";
@@ -79,7 +79,7 @@ subgraph cluster_func_2 {
   fontname="SF Pro Text Bold 10";
   label="printf";
 }
-subgraph cluster_func_3 {
+subgraph cluster_func_2 {
   shape="box";
   style="rounded, filled";
   fillcolor="#e3e3e3";
@@ -88,7 +88,7 @@ subgraph cluster_func_3 {
   fontsize=20;
   fontname="SF Pro Text Bold 10";
   label="main";
-  subgraph cluster_func_3_bb_1 {
+  subgraph cluster_func_2_bb_4 {
     shape="box";
     style="rounded, filled";
     fillcolor="#a4a4a4";
@@ -97,44 +97,46 @@ subgraph cluster_func_3 {
     fontsize=15;
     fontname="SF Pro Text Bold 10";
     label="label %0";
-    n0x6549de795f80 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="alloca"];
-    n0x6549de796020 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="store"];
-    n0x6549de7960c0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
-    n0x6549de7961e0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
-    u0x6549de795f60 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 1"];
-    u0x6549de795fe0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
-    u0x6549de796080 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 1"];
-    u0x6549de7961c0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
+    node_10 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="alloca"];
+    node_11 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="store"];
+    node_12 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_13 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    node_21 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 1"];
+    node_22 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
+    node_23 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 1"];
+    node_24 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @func"];
+    node_25 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
   }
 }
-n0x6549de716f50 -> n0x6549de754d40 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de754d40 -> n0x6549de794170 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de794170 -> n0x6549de6582e0 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de6582e0 -> n0x6549de716d40 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de716f50 -> n0x6549de794170 [color="#00b3ff", weight=1, penwidth=2, label="%2"];
-n0x6549de716f50 -> n0x6549de754d40 [color="#00b3ff", weight=1, penwidth=2, label="%2"];
-u0x6549de716f30 -> n0x6549de716f50 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de754d00 -> n0x6549de754d40 [color="#00b3ff", weight=1, penwidth=2, label="%0"];
-n0x6549de794170 -> n0x6549de6582e0 [color="#00b3ff", weight=1, penwidth=2, label="%3"];
-n0x6549de6582e0 -> n0x6549de716d40 [color="#00b3ff", weight=1, penwidth=2, label="%4"];
-u0x6549de6582c0 -> n0x6549de6582e0 [color="#00b3ff", weight=1, penwidth=2];
-n0x6549de795010 -> n0x6549de795090 [color="#ff3636", weight=1000, penwidth=3];
-u0x6549de794fd0 -> n0x6549de795010 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de794ff0 -> n0x6549de795010 [color="#00b3ff", weight=1, penwidth=2];
-n0x6549de795220 -> n0x6549de7952a0 [color="#ff3636", weight=1000, penwidth=3];
-u0x6549de7951e0 -> n0x6549de795220 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de795200 -> n0x6549de795220 [color="#00b3ff", weight=1, penwidth=2];
-n0x6549de716d40 -> n0x6549de795010 [color="#ff8800", weight=10000, penwidth=5];
-n0x6549de716d40 -> n0x6549de795220 [color="#ff8800", weight=10000, penwidth=5];
-n0x6549de7952a0 -> n0x6549de764e40 [color="#ff8800", weight=10000, penwidth=5];
-n0x6549de795090 -> n0x6549de764e40 [color="#ff8800", weight=10000, penwidth=5];
-n0x6549de795f80 -> n0x6549de796020 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de796020 -> n0x6549de7960c0 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de7960c0 -> n0x6549de7961e0 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de795f80 -> n0x6549de796020 [color="#00b3ff", weight=1, penwidth=2, label="%1"];
-u0x6549de795f60 -> n0x6549de795f80 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de795fe0 -> n0x6549de796020 [color="#00b3ff", weight=1, penwidth=2];
-n0x6549de7960c0 -> n0x6549de716f50 [color="#ff8800", penwidth=5, style="dashed", constraint=false];
-u0x6549de796080 -> n0x6549de7960c0 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de7961c0 -> n0x6549de7961e0 [color="#00b3ff", weight=1, penwidth=2];
+node_0 -> node_1 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_1 -> node_2 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_2 -> node_3 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_3 -> node_4 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_5 -> node_6 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_7 -> node_8 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_10 -> node_11 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_11 -> node_12 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_12 -> node_13 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_4 -> node_5 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true];
+node_4 -> node_7 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true];
+node_8 -> node_9 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true];
+node_6 -> node_9 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true];
+node_0 -> node_2 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%2"];
+node_0 -> node_1 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%2"];
+node_14 -> node_0 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_15 -> node_1 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%0"];
+node_2 -> node_3 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%3"];
+node_3 -> node_4 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%4"];
+node_16 -> node_3 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_17 -> node_5 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_18 -> node_5 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_19 -> node_7 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_20 -> node_7 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_10 -> node_11 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%1"];
+node_21 -> node_10 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_22 -> node_11 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_12 -> node_0 [color="#ff8800", weight=1, penwidth=5, style="dashed", constraint=false];
+node_23 -> node_12 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_24 -> node_12 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_25 -> node_13 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
 }

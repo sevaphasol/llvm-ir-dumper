@@ -8,21 +8,22 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PLUGIN_PATH = REPO_ROOT / "install" / "lib" / "libLLVMIRDumper.so"
+DEFAULT_CONVERTER_PATH = REPO_ROOT / "install" / "bin" / "ir_graph_to_dot"
 DEFAULT_BINARY_OUT = REPO_ROOT / "build" / "a.out"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description=(
-            "Compile a source file with the LLVM IR dumper plugin and optionally "
-            "render the produced dot dumps as SVG."
+            "Compile a source file with the LLVM IR dumper plugin, dump the IR graph to JSON, "
+            "and convert the JSON graph into dot/SVG."
         )
     )
 
     parser.add_argument(
         "--workdir",
         default=REPO_ROOT,
-        help="Parent directory to source, llvm_ir, before/after dot and svg. Defaults to %(default)s",
+        help="Parent directory to source, llvm_ir, json, dot and svg. Defaults to %(default)s",
     )
 
     parser.add_argument(
@@ -35,6 +36,11 @@ def parse_args():
         "--plugin-path",
         default=DEFAULT_PLUGIN_PATH,
         help="Path to libLLVMIRDumper.so. Defaults to %(default)s.",
+    )
+    parser.add_argument(
+        "--converter-path",
+        default=DEFAULT_CONVERTER_PATH,
+        help="Path to ir_graph_to_dot executable. Defaults to %(default)s.",
     )
 
     parser.add_argument(
@@ -49,20 +55,31 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--before-json",
+        default="json/before_opt.json",
+        help="Output path for serialized graph before optimization. Defaults to %(default)s.",
+    )
+    parser.add_argument(
+        "--after-json",
+        default="json/after_opt.json",
+        help="Output path for serialized graph after optimization. Defaults to %(default)s.",
+    )
+
+    parser.add_argument(
         "--before-dot",
         default="dot/before_opt.dot",
-        help="Path for the before-optimization dot dump. Defaults to %(default)s.",
+        help="Output path for the before-optimization dot dump. Defaults to %(default)s.",
     )
     parser.add_argument(
         "--after-dot",
         default="dot/after_opt.dot",
-        help="Path for the after-optimization dot dump. Defaults to %(default)s.",
+        help="Output path for the after-optimization dot dump. Defaults to %(default)s.",
     )
 
     parser.add_argument(
         "--no-svg",
         action="store_true",
-        help="No render the before/after dot dumps to SVG via Graphviz dot.",
+        help="Do not render the before/after dot dumps to SVG via Graphviz dot.",
     )
     parser.add_argument(
         "--before-svg",
@@ -111,6 +128,9 @@ def exec_command(command):
 
 
 def validate_args(args):
+    converter_path = Path(args.converter_path).expanduser()
+    require_existing_file(converter_path, "Graph converter executable")
+
     if not args.no_svg and shutil.which("dot") is None:
         raise FileNotFoundError("Graphviz 'dot' executable was not found in PATH.")
 
@@ -118,12 +138,12 @@ def validate_args(args):
 def exec_clang(args):
     workdir = Path(args.workdir).expanduser()
     plugin_path = Path(args.plugin_path).expanduser()
-    binary_out = workdir/args.binary_out
-    source_path = workdir/args.source
-    before_dot = workdir/args.before_dot
-    after_dot = workdir/args.after_dot
-    before_ll = workdir/args.before_ll
-    after_ll = workdir/args.after_ll
+    binary_out = workdir / args.binary_out
+    source_path = workdir / args.source
+    before_json = workdir / args.before_json
+    after_json = workdir / args.after_json
+    before_ll = workdir / args.before_ll
+    after_ll = workdir / args.after_ll
 
     require_existing_file(source_path, "Source file")
     require_existing_file(plugin_path, "Plugin library")
@@ -131,8 +151,8 @@ def exec_clang(args):
     ensure_parent_dir(binary_out)
     ensure_parent_dir(before_ll)
     ensure_parent_dir(after_ll)
-    ensure_parent_dir(before_dot)
-    ensure_parent_dir(after_dot)
+    ensure_parent_dir(before_json)
+    ensure_parent_dir(after_json)
 
     command = [
         "clang",
@@ -142,9 +162,9 @@ def exec_clang(args):
         str(plugin_path),
         f"-fpass-plugin={plugin_path}",
         "-mllvm",
-        f"-dumper-pass-dot-out-before-opt={before_dot}",
+        f"-dumper-pass-json-out-before-opt={before_json}",
         "-mllvm",
-        f"-dumper-pass-dot-out-after-opt={after_dot}",
+        f"-dumper-pass-json-out-after-opt={after_json}",
         "-mllvm",
         f"-dumper-pass-ir-out-before-opt={before_ll}",
         "-mllvm",
@@ -164,12 +184,33 @@ def exec_clang(args):
     exec_command(command)
 
 
-def generate_svg(workdir, dot, svg):
+def generate_dot(workdir, converter_path, json_path, dot_path):
     workdir = Path(workdir).expanduser()
-    path_dot = workdir/dot
-    path_svg = workdir/svg
+    converter_path = Path(converter_path).expanduser()
+    path_json = workdir / json_path
+    path_dot = workdir / dot_path
 
-    require_existing_file(path_dot, "Before dot dump")
+    require_existing_file(path_json, "Serialized graph dump")
+    require_existing_file(converter_path, "Graph converter executable")
+    ensure_parent_dir(path_dot)
+
+    exec_command(
+        [
+            str(converter_path),
+            "--input-json",
+            str(path_json),
+            "--output-dot",
+            str(path_dot),
+        ]
+    )
+
+
+def generate_svg(workdir, dot_path, svg_path):
+    workdir = Path(workdir).expanduser()
+    path_dot = workdir / dot_path
+    path_svg = workdir / svg_path
+
+    require_existing_file(path_dot, "Dot dump")
     ensure_parent_dir(path_svg)
 
     exec_command(["dot", "-Tsvg", str(path_dot), "-o", str(path_svg)])
@@ -179,6 +220,8 @@ def main():
     args = parse_args()
     validate_args(args)
     exec_clang(args)
+    generate_dot(args.workdir, args.converter_path, args.before_json, args.before_dot)
+    generate_dot(args.workdir, args.converter_path, args.after_json, args.after_dot)
 
     if not args.no_svg:
         generate_svg(args.workdir, args.before_dot, args.before_svg)

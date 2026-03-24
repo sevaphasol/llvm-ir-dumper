@@ -11,36 +11,57 @@ add_definitions( ${LLVM_DEFINITIONS} )
 
 set( SOURCES_DIR "sources" )
 set( INCLUDE_DIR "include" )
+set( NLOHMANN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/nlohmann/include" )
 
-set( LLVM_IR_DUMPER_SOURCES_DIR "${SOURCES_DIR}/llvm_ir_dumper" )
-set( DOT_GRAPH_SOURCES_DIR      "${SOURCES_DIR}/dot_graph" )
-
-file(
-    GLOB_RECURSE
+set(
     LLVM_IR_DUMPER_SOURCES
-    ${LLVM_IR_DUMPER_SOURCES_DIR}/*.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph_serde.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph_builder.cpp
+    ${SOURCES_DIR}/llvm_ir_dumper/dumper_pass.cpp
+    ${SOURCES_DIR}/llvm_ir_dumper/pass_api.cpp
 )
 
-file(
-    GLOB_RECURSE
-    DOT_GRAPH_SOURCES
-    ${DOT_GRAPH_SOURCES_DIR}/*.cpp
+set(
+    IR_GRAPH_TO_DOT_SOURCES
+    ${SOURCES_DIR}/ir_graph/ir_graph.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph_serde.cpp
+    ${SOURCES_DIR}/dot_graph/dot_graph.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph_to_dot.cpp
+    ${SOURCES_DIR}/tools/ir_graph_to_dot_main.cpp
 )
 
 add_library(
     LLVMIRDumper
     SHARED
     ${LLVM_IR_DUMPER_SOURCES}
-    ${DOT_GRAPH_SOURCES}
 )
 
 target_include_directories(
     LLVMIRDumper
     PRIVATE
     ${INCLUDE_DIR}
+    ${NLOHMANN_INCLUDE_DIR}
+)
+
+add_executable(
+    ir_graph_to_dot
+    ${IR_GRAPH_TO_DOT_SOURCES}
+)
+
+target_include_directories(
+    ir_graph_to_dot
+    PRIVATE
+    ${INCLUDE_DIR}
+    ${NLOHMANN_INCLUDE_DIR}
 )
 
 install(
     TARGETS LLVMIRDumper
     LIBRARY DESTINATION lib
+)
+
+install(
+    TARGETS ir_graph_to_dot
+    RUNTIME DESTINATION bin
 )

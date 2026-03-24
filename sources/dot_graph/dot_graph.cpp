@@ -1,4 +1,4 @@
-#include "dot_graph/graph.h"
+#include "dot_graph/dot_graph.h"
 
 #include <sstream>
 #include <string>

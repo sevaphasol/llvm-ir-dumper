@@ -3,12 +3,12 @@
 #include "llvm/Support/CommandLine.h"
 
 static llvm::cl::opt<std::string>
-    DotOutBeforeOpt( "dumper-pass-dot-out-before-opt",
-                     llvm::cl::desc( "Output path for dot dump before optimization" ) );
+    JsonOutBeforeOpt( "dumper-pass-json-out-before-opt",
+                      llvm::cl::desc( "Output path for json dump before optimization" ) );
 
 static llvm::cl::opt<std::string>
-    DotOutAfterOpt( "dumper-pass-dot-out-after-opt",
-                    llvm::cl::desc( "Output path for dot dump after optimization" ) );
+    JsonOutAfterOpt( "dumper-pass-json-out-after-opt",
+                     llvm::cl::desc( "Output path for json dump after optimization" ) );
 
 static llvm::cl::opt<std::string>
     IrOutBeforeOpt( "dumper-pass-ir-out-before-opt",

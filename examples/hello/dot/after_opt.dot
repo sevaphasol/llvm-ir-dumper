@@ -2,7 +2,7 @@ digraph "examples/hello/hello.c" {
   graph [pad=0.3, rankdir=TB, compound=true, overlap=false, nodesep=0.9, ranksep=1.3, splines=true];
   node [fontname="SF Pro Text Bold 10", fontsize=15];
   edge [fontname="SF Pro Text Bold 10", fontsize=15];
-subgraph cluster_func_1 {
+subgraph cluster_func_0 {
   shape="box";
   style="rounded, filled";
   fillcolor="#e3e3e3";
@@ -11,7 +11,7 @@ subgraph cluster_func_1 {
   fontsize=20;
   fontname="SF Pro Text Bold 10";
   label="func";
-  subgraph cluster_func_1_bb_1 {
+  subgraph cluster_func_0_bb_0 {
     shape="box";
     style="rounded, filled";
     fillcolor="#a4a4a4";
@@ -20,15 +20,40 @@ subgraph cluster_func_1 {
     fontsize=15;
     fontname="SF Pro Text Bold 10";
     label="label %1";
-    n0x6549de6582e0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
-    n0x6549de768470 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="select"];
-    n0x6549de7791e0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
-    n0x6549de764e40 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
-    u0x6549de6582a0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 %0"];
-    u0x6549de6582c0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
-    u0x6549de768430 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str"];
-    u0x6549de768450 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str.2"];
-    u0x6549de7791c0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @puts"];
+    node_0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_1 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="select"];
+    node_2 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_3 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    node_6 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 %0"];
+    node_7 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
+    node_8 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str"];
+    node_9 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str.2"];
+    node_10 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @puts"];
+  }
+}
+subgraph cluster_func_1 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="main";
+  subgraph cluster_func_1_bb_1 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a4a4a4";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %0";
+    node_4 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_5 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+    node_11 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str.2"];
+    node_12 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @puts"];
+    node_13 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
   }
 }
 subgraph cluster_func_2 {
@@ -39,45 +64,20 @@ subgraph cluster_func_2 {
   penwidth=2;
   fontsize=20;
   fontname="SF Pro Text Bold 10";
-  label="main";
-  subgraph cluster_func_2_bb_1 {
-    shape="box";
-    style="rounded, filled";
-    fillcolor="#a4a4a4";
-    color="#000000";
-    penwidth=2;
-    fontsize=15;
-    fontname="SF Pro Text Bold 10";
-    label="label %0";
-    n0x6549de796160 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
-    n0x6549de7961e0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
-    u0x6549de796120 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str.2"];
-    u0x6549de796140 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @puts"];
-    u0x6549de7961c0 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
-  }
-}
-subgraph cluster_func_3 {
-  shape="box";
-  style="rounded, filled";
-  fillcolor="#e3e3e3";
-  color="#000000";
-  penwidth=2;
-  fontsize=20;
-  fontname="SF Pro Text Bold 10";
   label="puts";
 }
-n0x6549de6582e0 -> n0x6549de768470 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de768470 -> n0x6549de7791e0 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de7791e0 -> n0x6549de764e40 [color="#ff3636", weight=1000, penwidth=3];
-n0x6549de6582e0 -> n0x6549de768470 [color="#00b3ff", weight=1, penwidth=2, label="%2"];
-u0x6549de6582a0 -> n0x6549de6582e0 [color="#00b3ff", weight=1, penwidth=2, label="%0"];
-u0x6549de6582c0 -> n0x6549de6582e0 [color="#00b3ff", weight=1, penwidth=2];
-n0x6549de768470 -> n0x6549de7791e0 [color="#00b3ff", weight=1, penwidth=2, label="%3"];
-u0x6549de768430 -> n0x6549de768470 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de768450 -> n0x6549de768470 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de7791c0 -> n0x6549de7791e0 [color="#00b3ff", weight=1, penwidth=2];
-n0x6549de796160 -> n0x6549de7961e0 [color="#ff3636", weight=1000, penwidth=3];
-u0x6549de796120 -> n0x6549de796160 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de796140 -> n0x6549de796160 [color="#00b3ff", weight=1, penwidth=2];
-u0x6549de7961c0 -> n0x6549de7961e0 [color="#00b3ff", weight=1, penwidth=2];
+node_0 -> node_1 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_1 -> node_2 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_2 -> node_3 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_4 -> node_5 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_0 -> node_1 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%2"];
+node_6 -> node_0 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%0"];
+node_7 -> node_0 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_1 -> node_2 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%3"];
+node_8 -> node_1 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_9 -> node_1 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_10 -> node_2 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_11 -> node_4 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_12 -> node_4 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_13 -> node_5 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
 }
