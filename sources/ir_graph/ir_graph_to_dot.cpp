@@ -309,44 +309,67 @@ renderDotGraph( const ir_graph::Graph& graph_model )
     graph.nodeAttributes().setFontName( "SF Pro Text Bold 10" ).setFontSize( 15 );
     graph.edgeAttributes().setFontName( "SF Pro Text Bold 10" ).setFontSize( 15 );
 
-    std::unordered_map<ir_graph::Id, dot_graph::Subgraph*> function_clusters;
-    std::unordered_map<ir_graph::Id, dot_graph::Subgraph*> basic_block_clusters;
-
-    for ( const auto& function : graph_model.functions() )
-    {
-        auto& cluster = graph.addSubgraph( getFunctionClusterId( function.id() ) );
-        applyClusterStyle( cluster, kFunctionCluster );
-        cluster.setQuotedLabel( formatFunctionLabel( function ) );
-        function_clusters.emplace( function.id(), &cluster );
-    }
+    std::unordered_map<ir_graph::Id, std::vector<const ir_graph::BasicBlock*>> basic_blocks_by_function;
+    std::unordered_map<ir_graph::Id, std::vector<const ir_graph::Node*>>       nodes_by_basic_block;
+    std::vector<const ir_graph::Node*>                                         top_level_nodes;
 
     for ( const auto& basic_block : graph_model.basicBlocks() )
     {
-        auto& cluster = function_clusters.at( basic_block.functionId() )
-                            ->addSubgraph( getBasicBlockClusterId( basic_block.functionId(),
-                                                                   basic_block.id() ) );
-        applyClusterStyle( cluster, kBasicBlockCluster );
-        cluster.setFillColor(
-            interpolateBasicBlockFillColor( basic_block, max_basic_block_execution_count ) );
-        cluster.setQuotedLabel( formatBasicBlockLabel( basic_block ) );
-        basic_block_clusters.emplace( basic_block.id(), &cluster );
+        basic_blocks_by_function[basic_block.functionId()].push_back( &basic_block );
     }
 
     for ( const auto& node : graph_model.nodes() )
     {
-        dot_graph::Node* dot_node = nullptr;
-
         if ( node.basicBlockId().has_value() )
         {
-            dot_node = &basic_block_clusters.at( *node.basicBlockId() )
-                            ->addNode( getNodeRenderId( node.id() ) );
+            nodes_by_basic_block[*node.basicBlockId()].push_back( &node );
         } else
         {
-            dot_node = &graph.addNode( getNodeRenderId( node.id() ) );
+            top_level_nodes.push_back( &node );
+        }
+    }
+
+    for ( const auto& function : graph_model.functions() )
+    {
+        auto& function_cluster = graph.addSubgraph( getFunctionClusterId( function.id() ) );
+        applyClusterStyle( function_cluster, kFunctionCluster );
+        function_cluster.setQuotedLabel( formatFunctionLabel( function ) );
+
+        const auto basic_blocks_it = basic_blocks_by_function.find( function.id() );
+        if ( basic_blocks_it == basic_blocks_by_function.end() )
+        {
+            continue;
         }
 
-        applyNodeStyle( *dot_node, getNodeStyle( node.kind() ) );
-        dot_node->setQuotedLabel( node.label() );
+        for ( const auto* basic_block : basic_blocks_it->second )
+        {
+            auto& basic_block_cluster = function_cluster.addSubgraph(
+                getBasicBlockClusterId( basic_block->functionId(), basic_block->id() ) );
+            applyClusterStyle( basic_block_cluster, kBasicBlockCluster );
+            basic_block_cluster.setFillColor(
+                interpolateBasicBlockFillColor( *basic_block, max_basic_block_execution_count ) );
+            basic_block_cluster.setQuotedLabel( formatBasicBlockLabel( *basic_block ) );
+
+            const auto nodes_it = nodes_by_basic_block.find( basic_block->id() );
+            if ( nodes_it == nodes_by_basic_block.end() )
+            {
+                continue;
+            }
+
+            for ( const auto* node : nodes_it->second )
+            {
+                auto& dot_node = basic_block_cluster.addNode( getNodeRenderId( node->id() ) );
+                applyNodeStyle( dot_node, getNodeStyle( node->kind() ) );
+                dot_node.setQuotedLabel( node->label() );
+            }
+        }
+    }
+
+    for ( const auto* node : top_level_nodes )
+    {
+        auto& dot_node = graph.addNode( getNodeRenderId( node->id() ) );
+        applyNodeStyle( dot_node, getNodeStyle( node->kind() ) );
+        dot_node.setQuotedLabel( node->label() );
     }
 
     for ( const auto& edge : graph_model.edges() )
