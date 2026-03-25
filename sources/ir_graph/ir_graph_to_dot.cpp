@@ -1,11 +1,17 @@
 #include "ir_graph/ir_graph_to_dot.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <iomanip>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 
 #include "dot_graph/dot_graph.h"
 
-namespace llvm_ir_dumper {
+namespace ir_graph {
 
 namespace {
 
@@ -88,6 +94,16 @@ constexpr ClusterStyle kBasicBlockCluster = {
     .font_name  = "SF Pro Text Bold 10",
 };
 
+struct RgbColor
+{
+    std::uint8_t red;
+    std::uint8_t green;
+    std::uint8_t blue;
+};
+
+constexpr RgbColor kColdBasicBlockColor = { 0x56, 0xc7, 0xc3 };
+constexpr RgbColor kHotBasicBlockColor  = { 0xf4, 0xa2, 0x61 };
+
 std::string
 getNodeRenderId( ir_graph::Id node_id )
 {
@@ -139,6 +155,109 @@ applyClusterStyle( dot_graph::Subgraph& cluster, const ClusterStyle& style )
         .setFontName( style.font_name );
 }
 
+std::string
+formatFunctionLabel( const ir_graph::Function& function )
+{
+    if ( !function.executionCount().has_value() )
+    {
+        return function.name();
+    }
+
+    return function.name() + "\\ncalls=" + std::to_string( *function.executionCount() );
+}
+
+std::string
+formatBasicBlockLabel( const ir_graph::BasicBlock& basic_block )
+{
+    if ( !basic_block.executionCount().has_value() )
+    {
+        return basic_block.label();
+    }
+
+    return basic_block.label() + "\\ncount=" + std::to_string( *basic_block.executionCount() );
+}
+
+double
+computeBasicBlockHeatRatio( const ir_graph::BasicBlock& basic_block, std::uint64_t max_count )
+{
+    if ( !basic_block.executionCount().has_value() )
+    {
+        return 0.0;
+    }
+
+    const double numerator   = std::log1p( static_cast<double>( *basic_block.executionCount() ) );
+    const double denominator = std::log1p( static_cast<double>( max_count ) );
+    return denominator > 0.0 ? numerator / denominator : 0.0;
+}
+
+std::string
+formatHexColor( const RgbColor& color )
+{
+    std::ostringstream stream;
+    stream << '#' << std::hex << std::setfill( '0' ) << std::setw( 2 )
+           << static_cast<unsigned>( color.red ) << std::setw( 2 )
+           << static_cast<unsigned>( color.green ) << std::setw( 2 )
+           << static_cast<unsigned>( color.blue );
+    return stream.str();
+}
+
+std::string
+interpolateBasicBlockFillColor( const ir_graph::BasicBlock& basic_block, std::uint64_t max_count )
+{
+    if ( !basic_block.executionCount().has_value() )
+    {
+        return std::string( kBasicBlockCluster.fill_color );
+    }
+
+    const double ratio = computeBasicBlockHeatRatio( basic_block, max_count );
+
+    const auto lerp = [ratio]( std::uint8_t from, std::uint8_t to ) {
+        return static_cast<std::uint8_t>(
+            std::lround( static_cast<double>( from ) +
+                         ( static_cast<double>( to ) - static_cast<double>( from ) ) * ratio ) );
+    };
+
+    return formatHexColor( RgbColor{ lerp( kColdBasicBlockColor.red, kHotBasicBlockColor.red ),
+                                     lerp( kColdBasicBlockColor.green,
+                                           kHotBasicBlockColor.green ),
+                                     lerp( kColdBasicBlockColor.blue,
+                                           kHotBasicBlockColor.blue ) } );
+}
+
+std::uint64_t
+getMaxBasicBlockExecutionCount( const ir_graph::Graph& graph_model )
+{
+    std::uint64_t max_count = 0;
+
+    for ( const auto& basic_block : graph_model.basicBlocks() )
+    {
+        if ( basic_block.executionCount().has_value() )
+        {
+            max_count = std::max( max_count, *basic_block.executionCount() );
+        }
+    }
+
+    return max_count;
+}
+
+std::optional<std::string>
+getRenderedEdgeLabel( const ir_graph::Edge& edge )
+{
+    const bool is_profiled_edge =
+        edge.kind() == ir_graph::EdgeKind::ControlFlow || edge.kind() == ir_graph::EdgeKind::Call;
+    if ( is_profiled_edge && edge.executionCount().has_value() )
+    {
+        return std::to_string( *edge.executionCount() );
+    }
+
+    if ( edge.label().has_value() && !edge.label()->empty() )
+    {
+        return edge.label();
+    }
+
+    return std::nullopt;
+}
+
 const EdgeStyle&
 getEdgeStyle( ir_graph::EdgeKind kind )
 {
@@ -177,6 +296,8 @@ std::string
 renderDotGraph( const ir_graph::Graph& graph_model )
 {
     dot_graph::Graph graph( graph_model.moduleName() );
+    const auto       max_basic_block_execution_count = getMaxBasicBlockExecutionCount( graph_model );
+
     graph.graphAttributes()
         .setRaw( "pad", "0.3" )
         .setRaw( "rankdir", "TB" )
@@ -195,7 +316,7 @@ renderDotGraph( const ir_graph::Graph& graph_model )
     {
         auto& cluster = graph.addSubgraph( getFunctionClusterId( function.id() ) );
         applyClusterStyle( cluster, kFunctionCluster );
-        cluster.setQuotedLabel( function.name() );
+        cluster.setQuotedLabel( formatFunctionLabel( function ) );
         function_clusters.emplace( function.id(), &cluster );
     }
 
@@ -205,7 +326,9 @@ renderDotGraph( const ir_graph::Graph& graph_model )
                             ->addSubgraph( getBasicBlockClusterId( basic_block.functionId(),
                                                                    basic_block.id() ) );
         applyClusterStyle( cluster, kBasicBlockCluster );
-        cluster.setQuotedLabel( basic_block.label() );
+        cluster.setFillColor(
+            interpolateBasicBlockFillColor( basic_block, max_basic_block_execution_count ) );
+        cluster.setQuotedLabel( formatBasicBlockLabel( basic_block ) );
         basic_block_clusters.emplace( basic_block.id(), &cluster );
     }
 
@@ -232,13 +355,14 @@ renderDotGraph( const ir_graph::Graph& graph_model )
                                         getNodeRenderId( edge.targetNodeId() ) );
         applyEdgeStyle( dot_edge, getEdgeStyle( edge.kind() ) );
 
-        if ( edge.label().has_value() && !edge.label()->empty() )
+        if ( const auto rendered_label = getRenderedEdgeLabel( edge );
+             rendered_label.has_value() && !rendered_label->empty() )
         {
-            dot_edge.setQuotedLabel( *edge.label() );
+            dot_edge.setQuotedLabel( *rendered_label );
         }
     }
 
     return static_cast<std::string>( graph );
 }
 
-} // namespace llvm_ir_dumper
+} // namespace ir_graph

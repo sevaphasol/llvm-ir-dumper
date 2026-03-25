@@ -1,5 +1,6 @@
 #include "ir_graph/ir_graph_builder.h"
 
+#include <cassert>
 #include <iterator>
 #include <string>
 
@@ -13,9 +14,9 @@
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/raw_ostream.h"
 
-namespace llvm_ir_dumper {
+namespace ir_graph {
 
-ir_graph::Graph
+ir_graph::BuildResult
 IrGraphBuilder::build( llvm::Module& module )
 {
     reset();
@@ -25,22 +26,20 @@ IrGraphBuilder::build( llvm::Module& module )
     registerInstructionSequenceEdges( module );
     registerControlFlowEdges( module );
     registerDataFlowAndCallEdges( module );
-    return std::move( graph_ );
+    populateBuildInfo();
+    return std::move( build_result_ );
 }
 
 void
 IrGraphBuilder::reset()
 {
-    graph_ = ir_graph::Graph{};
-    function_ids_.clear();
-    basic_block_ids_.clear();
-    instruction_node_ids_.clear();
+    build_result_ = ir_graph::BuildResult{};
 }
 
 void
 IrGraphBuilder::buildGraphHeader( llvm::Module& module )
 {
-    graph_.moduleName( module.getName().str() );
+    build_result_.graph.moduleName( module.getName().str() );
 }
 
 void
@@ -48,22 +47,24 @@ IrGraphBuilder::registerFunctionsAndBasicBlocks( llvm::Module& module )
 {
     for ( auto& func : module )
     {
-        const auto function_id = static_cast<ir_graph::Id>( graph_.functions().size() );
-        function_ids_.emplace( &func, function_id );
+        const auto function_id =
+            static_cast<ir_graph::Id>( build_result_.graph.functions().size() );
+        build_result_.info.function_ids.emplace( &func, function_id );
 
-        graph_.addFunction().id( function_id ).name( func.getName().str() );
+        build_result_.graph.addFunction().id( function_id ).name( func.getName().str() );
 
         for ( auto& basic_block : func )
         {
-            const auto basic_block_id = static_cast<ir_graph::Id>( graph_.basicBlocks().size() );
-            basic_block_ids_.emplace( &basic_block, basic_block_id );
+            const auto basic_block_id =
+                static_cast<ir_graph::Id>( build_result_.graph.basicBlocks().size() );
+            build_result_.info.basic_block_ids.emplace( &basic_block, basic_block_id );
 
-            graph_.addBasicBlock()
+            build_result_.graph.addBasicBlock()
                 .id( basic_block_id )
                 .functionId( function_id )
                 .label( formatOperandLabel( basic_block ) );
 
-            auto& function = graph_.function( function_id );
+            auto& function = build_result_.graph.function( function_id );
             if ( !function.entryBasicBlockId().has_value() )
             {
                 function.entryBasicBlockId( basic_block_id );
@@ -85,10 +86,11 @@ IrGraphBuilder::registerInstructionNodes( llvm::Module& module )
 
             for ( auto& instruction : basic_block )
             {
-                const auto node_id = static_cast<ir_graph::Id>( graph_.nodes().size() );
-                instruction_node_ids_.emplace( &instruction, node_id );
+                const auto node_id =
+                    static_cast<ir_graph::Id>( build_result_.graph.nodes().size() );
+                build_result_.info.instruction_node_ids.emplace( &instruction, node_id );
 
-                graph_.addNode()
+                build_result_.graph.addNode()
                     .id( node_id )
                     .kind( ir_graph::NodeKind::Instruction )
                     .functionId( function_id )
@@ -96,13 +98,13 @@ IrGraphBuilder::registerInstructionNodes( llvm::Module& module )
                     .label( instruction.getOpcodeName() )
                     .opcodeName( std::string( instruction.getOpcodeName() ) );
 
-                auto& function = graph_.function( function_id );
+                auto& function = build_result_.graph.function( function_id );
                 if ( !function.entryNodeId().has_value() )
                 {
                     function.entryNodeId( node_id );
                 }
 
-                auto& block = graph_.basicBlock( basic_block_id );
+                auto& block = build_result_.graph.basicBlock( basic_block_id );
                 if ( !block.entryNodeId().has_value() )
                 {
                     block.entryNodeId( node_id );
@@ -244,6 +246,34 @@ IrGraphBuilder::registerDataFlowAndCallEdges( llvm::Module& module )
 }
 
 void
+IrGraphBuilder::populateBuildInfo()
+{
+    build_result_.info.cfg_edge_ids.clear();
+    build_result_.info.call_edge_ids.clear();
+
+    for ( const auto& edge : build_result_.graph.edges() )
+    {
+        if ( edge.kind() == ir_graph::EdgeKind::ControlFlow &&
+             edge.sourceBasicBlockId().has_value() &&
+             edge.targetBasicBlockId().has_value() && edge.successorIndex().has_value() )
+        {
+            build_result_.info.cfg_edge_ids.emplace(
+                ir_graph::CfgEdgeKey{ *edge.sourceBasicBlockId(),
+                                      *edge.targetBasicBlockId(),
+                                      *edge.successorIndex() },
+                edge.id() );
+        }
+
+        if ( edge.kind() == ir_graph::EdgeKind::Call && edge.targetFunctionId().has_value() )
+        {
+            build_result_.info.call_edge_ids.emplace(
+                ir_graph::CallEdgeKey{ edge.sourceNodeId(), *edge.targetFunctionId() },
+                edge.id() );
+        }
+    }
+}
+
+void
 IrGraphBuilder::registerInstrUsersDataFlowEdges( llvm::Instruction&       instruction,
                                                  llvm::ModuleSlotTracker& slot_tracker,
                                                  std::uint64_t            instruction_node_id,
@@ -293,10 +323,10 @@ IrGraphBuilder::registerCallEdge( llvm::Instruction& instruction,
     auto* callee = call_base->getCalledFunction();
     if ( callee != nullptr && !callee->isDeclaration() )
     {
-        const auto callee_it = function_ids_.find( callee );
-        if ( callee_it != function_ids_.end() )
+        const auto callee_it = build_result_.info.function_ids.find( callee );
+        if ( callee_it != build_result_.info.function_ids.end() )
         {
-            const auto& callee_function = graph_.function( callee_it->second );
+            const auto& callee_function = build_result_.graph.function( callee_it->second );
             if ( callee_function.entryNodeId().has_value() )
             {
                 addEdge( ir_graph::EdgeKind::Call,
@@ -425,24 +455,24 @@ IrGraphBuilder::findSuccessorIndex( const llvm::BasicBlock& source,
 ir_graph::Id
 IrGraphBuilder::getFunctionId( const llvm::Function& func ) const
 {
-    const auto it = function_ids_.find( &func );
-    assert( it != function_ids_.end() );
+    const auto it = build_result_.info.function_ids.find( &func );
+    assert( it != build_result_.info.function_ids.end() );
     return it->second;
 }
 
 ir_graph::Id
 IrGraphBuilder::getBasicBlockId( const llvm::BasicBlock& basic_block ) const
 {
-    const auto it = basic_block_ids_.find( &basic_block );
-    assert( it != basic_block_ids_.end() );
+    const auto it = build_result_.info.basic_block_ids.find( &basic_block );
+    assert( it != build_result_.info.basic_block_ids.end() );
     return it->second;
 }
 
 ir_graph::Id
 IrGraphBuilder::getInstructionNodeId( const llvm::Instruction& instruction ) const
 {
-    const auto it = instruction_node_ids_.find( &instruction );
-    assert( it != instruction_node_ids_.end() );
+    const auto it = build_result_.info.instruction_node_ids.find( &instruction );
+    assert( it != build_result_.info.instruction_node_ids.end() );
     return it->second;
 }
 
@@ -453,9 +483,9 @@ IrGraphBuilder::addOperandNode( const llvm::Function&    func,
                                 const llvm::Value&       operand,
                                 std::uint64_t            operand_index )
 {
-    const auto node_id = static_cast<ir_graph::Id>( graph_.nodes().size() );
+    const auto node_id = static_cast<ir_graph::Id>( build_result_.graph.nodes().size() );
 
-    return graph_.addNode()
+    return build_result_.graph.addNode()
         .id( node_id )
         .kind( ir_graph::NodeKind::Operand )
         .functionId( getFunctionId( func ) )
@@ -470,9 +500,11 @@ IrGraphBuilder::addEdge( ir_graph::EdgeKind kind,
                          ir_graph::Id       source_node_id,
                          ir_graph::Id       target_node_id )
 {
-    const auto edge_id = static_cast<ir_graph::Id>( graph_.edges().size() );
+    const auto edge_id = static_cast<ir_graph::Id>( build_result_.graph.edges().size() );
 
-    return graph_.addEdge( source_node_id, target_node_id ).id( edge_id ).kind( kind );
+    return build_result_.graph.addEdge( source_node_id, target_node_id )
+        .id( edge_id )
+        .kind( kind );
 }
 
-} // namespace llvm_ir_dumper
+} // namespace ir_graph

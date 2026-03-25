@@ -4,9 +4,9 @@
 
 #include "ir_graph/ir_graph.h"
 
-namespace llvm_ir_dumper {
+namespace ir_graph {
 
 std::string
 renderDotGraph( const ir_graph::Graph& graph );
 
-} // namespace llvm_ir_dumper
+} // namespace ir_graph

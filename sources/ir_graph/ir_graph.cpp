@@ -32,6 +32,13 @@ Function::entryBasicBlockId( std::optional<Id> value )
     return *this;
 }
 
+Function&
+Function::executionCount( std::optional<std::uint64_t> value )
+{
+    execution_count_ = value;
+    return *this;
+}
+
 Id
 Function::id() const
 {
@@ -54,6 +61,12 @@ const std::optional<Id>&
 Function::entryBasicBlockId() const
 {
     return entry_basic_block_id_;
+}
+
+const std::optional<std::uint64_t>&
+Function::executionCount() const
+{
+    return execution_count_;
 }
 
 BasicBlock&
@@ -84,6 +97,13 @@ BasicBlock::entryNodeId( std::optional<Id> value )
     return *this;
 }
 
+BasicBlock&
+BasicBlock::executionCount( std::optional<std::uint64_t> value )
+{
+    execution_count_ = value;
+    return *this;
+}
+
 Id
 BasicBlock::id() const
 {
@@ -106,6 +126,12 @@ const std::optional<Id>&
 BasicBlock::entryNodeId() const
 {
     return entry_node_id_;
+}
+
+const std::optional<std::uint64_t>&
+BasicBlock::executionCount() const
+{
+    return execution_count_;
 }
 
 Node&
@@ -282,6 +308,13 @@ Edge::successorIndex( std::optional<std::uint64_t> value )
     return *this;
 }
 
+Edge&
+Edge::executionCount( std::optional<std::uint64_t> value )
+{
+    execution_count_ = value;
+    return *this;
+}
+
 Id
 Edge::id() const
 {
@@ -340,6 +373,12 @@ const std::optional<std::uint64_t>&
 Edge::successorIndex() const
 {
     return successor_index_;
+}
+
+const std::optional<std::uint64_t>&
+Edge::executionCount() const
+{
+    return execution_count_;
 }
 
 Graph&

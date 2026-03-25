@@ -11,7 +11,17 @@ add_definitions( ${LLVM_DEFINITIONS} )
 
 set( SOURCES_DIR "sources" )
 set( INCLUDE_DIR "include" )
-set( NLOHMANN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/nlohmann/include" )
+set( ARGPARSE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/argparse/include" )
+set( NLOHMANN_LOCAL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/nlohmann/include" )
+set( NLOHMANN_FALLBACK_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/nlohmann/include" )
+
+if( EXISTS "${NLOHMANN_LOCAL_INCLUDE_DIR}/nlohmann/json.hpp" )
+    set( NLOHMANN_INCLUDE_DIR "${NLOHMANN_LOCAL_INCLUDE_DIR}" )
+elseif( EXISTS "${NLOHMANN_FALLBACK_INCLUDE_DIR}/nlohmann/json.hpp" )
+    set( NLOHMANN_INCLUDE_DIR "${NLOHMANN_FALLBACK_INCLUDE_DIR}" )
+else()
+    set( NLOHMANN_INCLUDE_DIR "${NLOHMANN_LOCAL_INCLUDE_DIR}" )
+endif()
 
 set(
     LLVM_IR_DUMPER_SOURCES
@@ -20,6 +30,7 @@ set(
     ${SOURCES_DIR}/ir_graph/ir_graph_builder.cpp
     ${SOURCES_DIR}/llvm_ir_dumper/dumper_pass.cpp
     ${SOURCES_DIR}/llvm_ir_dumper/pass_api.cpp
+    ${SOURCES_DIR}/llvm_ir_dumper/inject_pass.cpp
 )
 
 set(
@@ -29,6 +40,19 @@ set(
     ${SOURCES_DIR}/dot_graph/dot_graph.cpp
     ${SOURCES_DIR}/ir_graph/ir_graph_to_dot.cpp
     ${SOURCES_DIR}/tools/ir_graph_to_dot_main.cpp
+)
+
+set(
+    IR_GRAPH_PROFILE_MERGE_SOURCES
+    ${SOURCES_DIR}/ir_graph/ir_graph.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph_serde.cpp
+    ${SOURCES_DIR}/ir_graph/ir_graph_profile.cpp
+    ${SOURCES_DIR}/tools/ir_graph_profile_merge_main.cpp
+)
+
+set(
+    COMPILE_WITH_PLUGIN_SOURCES
+    ${SOURCES_DIR}/tools/compile_with_plugin_main.cpp
 )
 
 add_library(
@@ -49,11 +73,36 @@ add_executable(
     ${IR_GRAPH_TO_DOT_SOURCES}
 )
 
+add_executable(
+    ir_graph_profile_merge
+    ${IR_GRAPH_PROFILE_MERGE_SOURCES}
+)
+
+add_executable(
+    compile_with_plugin
+    ${COMPILE_WITH_PLUGIN_SOURCES}
+)
+
 target_include_directories(
     ir_graph_to_dot
     PRIVATE
     ${INCLUDE_DIR}
+    ${ARGPARSE_INCLUDE_DIR}
     ${NLOHMANN_INCLUDE_DIR}
+)
+
+target_include_directories(
+    ir_graph_profile_merge
+    PRIVATE
+    ${INCLUDE_DIR}
+    ${ARGPARSE_INCLUDE_DIR}
+    ${NLOHMANN_INCLUDE_DIR}
+)
+
+target_include_directories(
+    compile_with_plugin
+    PRIVATE
+    ${ARGPARSE_INCLUDE_DIR}
 )
 
 install(
@@ -62,6 +111,6 @@ install(
 )
 
 install(
-    TARGETS ir_graph_to_dot
+    TARGETS ir_graph_to_dot ir_graph_profile_merge compile_with_plugin
     RUNTIME DESTINATION bin
 )

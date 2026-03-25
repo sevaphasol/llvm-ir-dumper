@@ -29,6 +29,7 @@ class Function {
     std::string       name_;
     std::optional<Id> entry_node_id_;
     std::optional<Id> entry_basic_block_id_;
+    std::optional<std::uint64_t> execution_count_;
 
   public:
     Function&
@@ -39,6 +40,8 @@ class Function {
     entryNodeId( std::optional<Id> value );
     Function&
     entryBasicBlockId( std::optional<Id> value );
+    Function&
+    executionCount( std::optional<std::uint64_t> value );
 
     Id
     id() const;
@@ -51,6 +54,9 @@ class Function {
 
     const std::optional<Id>&
     entryBasicBlockId() const;
+
+    const std::optional<std::uint64_t>&
+    executionCount() const;
 };
 
 class BasicBlock {
@@ -59,6 +65,7 @@ class BasicBlock {
     Id                function_id_ = 0;
     std::string       label_;
     std::optional<Id> entry_node_id_;
+    std::optional<std::uint64_t> execution_count_;
 
   public:
     BasicBlock&
@@ -69,6 +76,8 @@ class BasicBlock {
     label( std::string value );
     BasicBlock&
     entryNodeId( std::optional<Id> value );
+    BasicBlock&
+    executionCount( std::optional<std::uint64_t> value );
 
     Id
     id() const;
@@ -81,6 +90,9 @@ class BasicBlock {
 
     const std::optional<Id>&
     entryNodeId() const;
+
+    const std::optional<std::uint64_t>&
+    executionCount() const;
 };
 
 class Node {
@@ -149,6 +161,7 @@ class Edge {
     std::optional<Id>            source_basic_block_id_;
     std::optional<Id>            target_basic_block_id_;
     std::optional<std::uint64_t> successor_index_;
+    std::optional<std::uint64_t> execution_count_;
 
   public:
     Edge&
@@ -171,6 +184,8 @@ class Edge {
     targetBasicBlockId( std::optional<Id> value );
     Edge&
     successorIndex( std::optional<std::uint64_t> value );
+    Edge&
+    executionCount( std::optional<std::uint64_t> value );
 
     Id
     id() const;
@@ -201,6 +216,9 @@ class Edge {
 
     const std::optional<std::uint64_t>&
     successorIndex() const;
+
+    const std::optional<std::uint64_t>&
+    executionCount() const;
 };
 
 class Graph {

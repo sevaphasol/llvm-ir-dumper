@@ -2,63 +2,21 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
 #include <string>
-#include <string_view>
+
+#include <argparse/argparse.hpp>
 
 #include "ir_graph/ir_graph_serde.h"
 #include "ir_graph/ir_graph_to_dot.h"
 
 namespace {
 
-struct CliArgs
-{
-    std::string input_json;
-    std::string output_dot;
-};
-
 void
-printUsage( std::string_view program_name )
+configureProgram( argparse::ArgumentParser& program )
 {
-    std::cerr << "Usage: " << program_name << " --input-json <path> --output-dot <path>\n";
-}
-
-CliArgs
-parseArgs( int argc, char** argv )
-{
-    CliArgs args;
-
-    for ( int i = 1; i < argc; ++i )
-    {
-        const std::string_view arg = argv[i];
-
-        if ( arg == "--input-json" && i + 1 < argc )
-        {
-            args.input_json = argv[++i];
-            continue;
-        }
-
-        if ( arg == "--output-dot" && i + 1 < argc )
-        {
-            args.output_dot = argv[++i];
-            continue;
-        }
-
-        if ( arg == "--help" || arg == "-h" )
-        {
-            printUsage( argv[0] );
-            std::exit( 0 );
-        }
-
-        throw std::runtime_error( "unknown argument: " + std::string( arg ) );
-    }
-
-    if ( args.input_json.empty() || args.output_dot.empty() )
-    {
-        throw std::runtime_error( "both --input-json and --output-dot are required" );
-    }
-
-    return args;
+    program.add_description( "Deserialize an IR graph JSON snapshot and render it as a DOT graph." );
+    program.add_argument( "--input-json" ).required().help( "Path to the serialized graph JSON." );
+    program.add_argument( "--output-dot" ).required().help( "Path to the output DOT file." );
 }
 
 } // namespace
@@ -68,23 +26,28 @@ main( int argc, char** argv )
 {
     try
     {
-        const CliArgs args = parseArgs( argc, argv );
+        argparse::ArgumentParser program( "ir_graph_to_dot" );
+        configureProgram( program );
+        program.parse_args( argc, argv );
 
-        std::ifstream input( args.input_json );
+        const auto input_json = program.get<std::string>( "--input-json" );
+        const auto output_dot = program.get<std::string>( "--output-dot" );
+
+        std::ifstream input( input_json );
         if ( !input )
         {
-            throw std::runtime_error( "unable to open input json: " + args.input_json );
+            throw std::runtime_error( "unable to open input json: " + input_json );
         }
 
         const auto graph = ir_graph::deserialize( input );
 
-        std::ofstream output( args.output_dot );
+        std::ofstream output( output_dot );
         if ( !output )
         {
-            throw std::runtime_error( "unable to open output dot: " + args.output_dot );
+            throw std::runtime_error( "unable to open output dot: " + output_dot );
         }
 
-        output << llvm_ir_dumper::renderDotGraph( graph );
+        output << ir_graph::renderDotGraph( graph );
     } catch ( const std::exception& ex )
     {
         std::cerr << "[ir-graph-to-dot] " << ex.what() << '\n';

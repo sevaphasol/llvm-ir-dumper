@@ -6,15 +6,15 @@
 #include "llvm/IR/PassManager.h"
 #include "llvm/Support/raw_ostream.h"
 
-namespace llvm_ir_dumper {
+namespace llvm_ir_dump_pass {
 
-class DumperPass : public llvm::PassInfoMixin<DumperPass> {
+class DumpPass : public llvm::PassInfoMixin<DumpPass> {
   private:
     std::string json_out_;
     std::string ll_out_;
 
   public:
-    DumperPass( const std::string& json_out, const std::string& ll_out );
+    DumpPass( const std::string& json_out, const std::string& ll_out );
 
     llvm::PreservedAnalyses
     run( llvm::Module& module, llvm::ModuleAnalysisManager& /*unused*/ );
@@ -26,4 +26,4 @@ class DumperPass : public llvm::PassInfoMixin<DumperPass> {
                 llvm::raw_fd_ostream& json_dump );
 };
 
-} // namespace llvm_ir_dumper
+} // namespace llvm_ir_dump_pass

@@ -39,6 +39,7 @@ to_json( nlohmann::json& json, const Function& function )
     };
     setOptional( json, "entry_node_id", function.entryNodeId() );
     setOptional( json, "entry_basic_block_id", function.entryBasicBlockId() );
+    setOptional( json, "execution_count", function.executionCount() );
 }
 
 void
@@ -47,7 +48,8 @@ from_json( const nlohmann::json& json, Function& function )
     function.id( json.value( "id", Id{ 0 } ) )
         .name( json.value( "name", std::string{} ) )
         .entryNodeId( optionalValue<Id>( json, "entry_node_id" ) )
-        .entryBasicBlockId( optionalValue<Id>( json, "entry_basic_block_id" ) );
+        .entryBasicBlockId( optionalValue<Id>( json, "entry_basic_block_id" ) )
+        .executionCount( optionalValue<std::uint64_t>( json, "execution_count" ) );
 }
 
 void
@@ -59,6 +61,7 @@ to_json( nlohmann::json& json, const BasicBlock& basic_block )
         { "label", basic_block.label() },
     };
     setOptional( json, "entry_node_id", basic_block.entryNodeId() );
+    setOptional( json, "execution_count", basic_block.executionCount() );
 }
 
 void
@@ -67,7 +70,8 @@ from_json( const nlohmann::json& json, BasicBlock& basic_block )
     basic_block.id( json.value( "id", Id{ 0 } ) )
         .functionId( json.value( "function_id", Id{ 0 } ) )
         .label( json.value( "label", std::string{} ) )
-        .entryNodeId( optionalValue<Id>( json, "entry_node_id" ) );
+        .entryNodeId( optionalValue<Id>( json, "entry_node_id" ) )
+        .executionCount( optionalValue<std::uint64_t>( json, "execution_count" ) );
 }
 
 void
@@ -113,6 +117,7 @@ to_json( nlohmann::json& json, const Edge& edge )
     setOptional( json, "source_basic_block_id", edge.sourceBasicBlockId() );
     setOptional( json, "target_basic_block_id", edge.targetBasicBlockId() );
     setOptional( json, "successor_index", edge.successorIndex() );
+    setOptional( json, "execution_count", edge.executionCount() );
 }
 
 void
@@ -127,7 +132,8 @@ from_json( const nlohmann::json& json, Edge& edge )
         .targetFunctionId( optionalValue<Id>( json, "target_function_id" ) )
         .sourceBasicBlockId( optionalValue<Id>( json, "source_basic_block_id" ) )
         .targetBasicBlockId( optionalValue<Id>( json, "target_basic_block_id" ) )
-        .successorIndex( optionalValue<std::uint64_t>( json, "successor_index" ) );
+        .successorIndex( optionalValue<std::uint64_t>( json, "successor_index" ) )
+        .executionCount( optionalValue<std::uint64_t>( json, "execution_count" ) );
 }
 
 void

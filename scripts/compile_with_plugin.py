@@ -9,6 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PLUGIN_PATH = REPO_ROOT / "install" / "lib" / "libLLVMIRDumper.so"
 DEFAULT_CONVERTER_PATH = REPO_ROOT / "install" / "bin" / "ir_graph_to_dot"
+DEFAULT_PROFILE_TOOL_PATH = REPO_ROOT / "install" / "bin" / "ir_graph_profile_merge"
 DEFAULT_BINARY_OUT = REPO_ROOT / "build" / "a.out"
 
 
@@ -41,6 +42,11 @@ def parse_args():
         "--converter-path",
         default=DEFAULT_CONVERTER_PATH,
         help="Path to ir_graph_to_dot executable. Defaults to %(default)s.",
+    )
+    parser.add_argument(
+        "--profile-tool-path",
+        default=DEFAULT_PROFILE_TOOL_PATH,
+        help="Path to ir_graph_profile_merge executable. Defaults to %(default)s.",
     )
 
     parser.add_argument(
@@ -75,6 +81,16 @@ def parse_args():
         default="dot/after_opt.dot",
         help="Output path for the after-optimization dot dump. Defaults to %(default)s.",
     )
+    parser.add_argument(
+        "--profile-json",
+        default="json/after_opt_profiled.json",
+        help="Output path for the merged static+dynamic graph JSON. Defaults to %(default)s.",
+    )
+    parser.add_argument(
+        "--profile-dot",
+        default="dot/after_opt_profiled.dot",
+        help="Output path for the profiled dot dump. Defaults to %(default)s.",
+    )
 
     parser.add_argument(
         "--no-svg",
@@ -91,6 +107,11 @@ def parse_args():
         default="svg/after_opt.svg",
         help="Output path for the after-optimization SVG. Defaults to %(default)s.",
     )
+    parser.add_argument(
+        "--profile-svg",
+        default="svg/after_opt_profiled.svg",
+        help="Output path for the profiled SVG. Defaults to %(default)s.",
+    )
 
     parser.add_argument(
         "--binary-out",
@@ -101,6 +122,23 @@ def parse_args():
         "--opt-level",
         default="O2",
         help="Optimization level passed to clang. Defaults to %(default)s.",
+    )
+    parser.add_argument(
+        "--inject-logging",
+        action="store_true",
+        help="Inject runtime logging for function, basic-block, CFG-edge and call-edge events.",
+    )
+    parser.add_argument(
+        "--profile-after-run",
+        action="store_true",
+        help="Run the built binary, merge runtime logs into after-opt JSON, and render profiled outputs.",
+    )
+    parser.add_argument(
+        "--run-arg",
+        action="append",
+        default=[],
+        metavar="ARG",
+        help="Argument passed to the profiled binary. Can be provided multiple times.",
     )
     parser.add_argument(
         "--extra-clang-arg",
@@ -124,12 +162,20 @@ def require_existing_file(path, description):
 
 def exec_command(command):
     print(" ".join(command), file=sys.stderr)
-    subprocess.run(command, check=True)
+    completed = subprocess.run(command)
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"command failed with exit code {completed.returncode}: {' '.join(command)}"
+        )
 
 
 def validate_args(args):
     converter_path = Path(args.converter_path).expanduser()
     require_existing_file(converter_path, "Graph converter executable")
+
+    if args.profile_after_run:
+        profile_tool_path = Path(args.profile_tool_path).expanduser()
+        require_existing_file(profile_tool_path, "Graph profile merge executable")
 
     if not args.no_svg and shutil.which("dot") is None:
         raise FileNotFoundError("Graphviz 'dot' executable was not found in PATH.")
@@ -170,6 +216,14 @@ def exec_clang(args):
         "-mllvm",
         f"-dumper-pass-ir-out-after-opt={after_ll}",
     ]
+
+    if args.inject_logging or args.profile_after_run:
+        command.extend(
+            [
+                "-mllvm",
+                "-dumper-pass-enable-logging-injection",
+            ]
+        )
 
     command.extend(args.extra_clang_arg)
     command.extend(
@@ -216,18 +270,63 @@ def generate_svg(workdir, dot_path, svg_path):
     exec_command(["dot", "-Tsvg", str(path_dot), "-o", str(path_svg)])
 
 
+def merge_profile(args):
+    workdir = Path(args.workdir).expanduser()
+    profile_tool_path = Path(args.profile_tool_path).expanduser()
+    binary_out = workdir / args.binary_out
+    input_json = workdir / args.after_json
+    output_json = workdir / args.profile_json
+
+    require_existing_file(profile_tool_path, "Graph profile merge executable")
+    require_existing_file(binary_out, "Compiled binary")
+    require_existing_file(input_json, "After-opt serialized graph dump")
+    ensure_parent_dir(output_json)
+
+    if not args.run_arg:
+        print(
+            "[compile_with_plugin] profiling run will execute the binary without runtime "
+            "arguments. If the program expects argv, pass them via --run-arg.",
+            file=sys.stderr,
+        )
+
+    command = [
+        str(profile_tool_path),
+        "--input-json",
+        str(input_json),
+        "--binary",
+        str(binary_out),
+        "--output-json",
+        str(output_json),
+    ]
+
+    for run_arg in args.run_arg:
+        command.extend(["--binary-arg", run_arg])
+
+    exec_command(command)
+
+
 def main():
-    args = parse_args()
-    validate_args(args)
-    exec_clang(args)
-    generate_dot(args.workdir, args.converter_path, args.before_json, args.before_dot)
-    generate_dot(args.workdir, args.converter_path, args.after_json, args.after_dot)
+    try:
+        args = parse_args()
+        validate_args(args)
+        exec_clang(args)
+        generate_dot(args.workdir, args.converter_path, args.before_json, args.before_dot)
+        generate_dot(args.workdir, args.converter_path, args.after_json, args.after_dot)
 
-    if not args.no_svg:
-        generate_svg(args.workdir, args.before_dot, args.before_svg)
-        generate_svg(args.workdir, args.after_dot, args.after_svg)
+        if args.profile_after_run:
+            merge_profile(args)
+            generate_dot(args.workdir, args.converter_path, args.profile_json, args.profile_dot)
 
-    return 0
+        if not args.no_svg:
+            generate_svg(args.workdir, args.before_dot, args.before_svg)
+            generate_svg(args.workdir, args.after_dot, args.after_svg)
+            if args.profile_after_run:
+                generate_svg(args.workdir, args.profile_dot, args.profile_svg)
+
+        return 0
+    except Exception as exc:
+        print(f"[compile_with_plugin] {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
