@@ -90,8 +90,7 @@ Python-обвязка тоже сохранена:
 
 - `3rd_party/argparse`
 - `3rd_party/nlohmann`
-
-Если локальный `wt/graph_serialization_v2/3rd_party/nlohmann` ещё не checkout’нут, CMake временно умеет брать `nlohmann` из верхнего `../../3rd_party/nlohmann`.
+- `3rd_party/dot-graph-lib`
 
 ## Сборка
 
@@ -137,6 +136,17 @@ python3 scripts/compile_with_plugin.py \
 - `dot/before_opt.dot`
 - `dot/after_opt.dot`
 - `dot/after_opt_profiled.dot`
+
+## Примеры визуализации
+
+Ниже один и тот же `examples/fact/fact.c` при `-O1`.
+
+Слева обычный `after_opt` граф без runtime profile.
+Справа граф после `--profile-after-run --run-arg 5`: у basic blocks появился heat coloring, у функций `calls=N`, а у `control_flow/call` edges execution counts.
+
+| Static `after_opt`                                            | Profiled `after_opt`                                                     |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| ![Static after-opt graph](examples/fact/O1/svg/after_opt.svg) | ![Profiled after-opt graph](examples/fact/O1/svg/after_opt_profiled.svg) |
 
 ## Типичный workflow
 
