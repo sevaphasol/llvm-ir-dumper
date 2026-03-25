@@ -9,7 +9,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "dot_graph/dot_graph.h"
+#include <dot_graph/graph.h>
 
 namespace ir_graph {
 

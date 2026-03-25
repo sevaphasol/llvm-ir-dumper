@@ -12,6 +12,7 @@ add_definitions( ${LLVM_DEFINITIONS} )
 set( SOURCES_DIR "sources" )
 set( INCLUDE_DIR "include" )
 set( ARGPARSE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/argparse/include" )
+set( DOT_GRAPH_LIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/dot-graph-lib" )
 set( NLOHMANN_LOCAL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/nlohmann/include" )
 set( NLOHMANN_FALLBACK_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/nlohmann/include" )
 
@@ -37,7 +38,6 @@ set(
     IR_GRAPH_TO_DOT_SOURCES
     ${SOURCES_DIR}/ir_graph/ir_graph.cpp
     ${SOURCES_DIR}/ir_graph/ir_graph_serde.cpp
-    ${SOURCES_DIR}/dot_graph/dot_graph.cpp
     ${SOURCES_DIR}/ir_graph/ir_graph_to_dot.cpp
     ${SOURCES_DIR}/tools/ir_graph_to_dot_main.cpp
 )
@@ -88,6 +88,7 @@ target_include_directories(
     PRIVATE
     ${INCLUDE_DIR}
     ${ARGPARSE_INCLUDE_DIR}
+    ${DOT_GRAPH_LIB_INCLUDE_DIR}
     ${NLOHMANN_INCLUDE_DIR}
 )
 
