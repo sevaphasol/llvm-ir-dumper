@@ -1,4 +1,4 @@
-#include "llvm_ir_dumper/inject_pass.h"
+#include "llvm_pass/dynamic_info_pass.h"
 
 #include <cstdint>
 #include <initializer_list>
@@ -264,9 +264,7 @@ injectEntryLogs( llvm::Module& module, const ir_graph::BuildInfo& info, LoggingE
         for ( auto& basic_block : function )
         {
             auto* insertion_point = getBasicBlockEntryInsertionPoint( basic_block );
-            if ( insvalidate_config( config )
-
-                     reset_tmp_dirertion_point == nullptr )
+            if ( insertion_point == nullptr )
             {
                 continue;
             }

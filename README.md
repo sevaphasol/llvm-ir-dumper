@@ -1,58 +1,62 @@
 # LLVM IR Dumper
 
-`LLVM IR Dumper` это LLVM pass plugin и набор утилит вокруг него.
+`LLVM IR Dumper` это LLVM pass plugin и набор утилит вокруг него для получения статического и динамического CFG/DFG графа программы.
 
-Проект умеет:
+Сейчас архитектура разделена так:
+
+- `libLLVMIRDumper.so` строит `IrGraph`, сериализует его в JSON и при необходимости инжектит runtime logging
+- `ir_graph_to_dot` переводит `IrGraph JSON -> DOT`
+- `ir_graph_profile_merge` мержит статический JSON и runtime log
+- `graphcc` это Python driver компиляторного типа, который оркестрирует весь pipeline
+
+Главная идея: на C++ остаются только необходимые этапы, а общий driver живёт в Python.
+
+## Что умеет проект
 
 - снимать два статических среза LLVM IR: `before_opt` и `after_opt`
 - строить по ним промежуточное представление `IrGraph`
-- сериализовать `IrGraph` в JSON
-- десериализовать JSON и рендерить `.dot`
+- сериализовать `IrGraph` в JSON через `to_json/from_json`
+- рендерить JSON в `.dot`
 - инжектить runtime logging в бинарник
-- запускать бинарник, собирать dynamic profile и мержить его обратно в JSON граф
-- рисовать профилированный `.dot`, где часто посещаемые basic blocks теплее по цвету
-
-На выходе можно получить:
-
-- LLVM IR в `.ll`
-- статический граф в `.json`
-- полный граф со статикой + динамикой в `.json`
-- `.dot`
-- `.svg`
-- обычный исполняемый файл
+- собирать dynamic profile из `[ir-log]` событий
+- мержить dynamic profile обратно в `IrGraph`
+- рисовать SVG, где часто посещаемые basic blocks теплее по цвету
 
 ## Пайплайн
 
-Статическая часть:
+### Static
 
-1. pass plugin строит `IrGraph`
-2. pass сериализует его в `before_opt.json` и `after_opt.json`
-3. `ir_graph_to_dot` конвертирует JSON в `.dot`
-4. при необходимости `dot` из Graphviz рендерит `.svg`
+1. `clang/clang++` загружает `libLLVMIRDumper.so`
+2. pass снимает `before_opt` и `after_opt` snapshot'ы
+3. каждый snapshot сериализуется в `IrGraph JSON`
+4. `ir_graph_to_dot` переводит JSON в DOT
+5. `dot` из Graphviz рендерит SVG
 
-Динамическая часть:
+### Dynamic
 
-1. pass дополнительно инжектит logging в LLVM IR
-2. инструментированный бинарник запускается
-3. `ir_graph_profile_merge` собирает `[ir-log]` события
-4. profile merge записывает `execution_count` в функции, basic blocks и `control_flow/call` edges
-5. `ir_graph_to_dot` рендерит уже профилированный граф
+1. driver сначала делает базовый static build и получает `before_static.json` / `after_static.json`
+2. для каждой requested dynamic stage driver собирает отдельный instrumented binary:
+   - `before` с inject-pass на pipeline start
+   - `after` с inject-pass на optimizer last
+3. stdout программы сохраняется в `tmp/*.runtime.log`
+4. `ir_graph_profile_merge` читает соответствующий static JSON и runtime log
+5. merge записывает `execution_count` в функции, basic blocks и `control_flow/call` edges
+6. `ir_graph_to_dot` рендерит уже dynamic JSON
+7. `dot` превращает его в SVG
 
 ## Архитектура
 
-Ключевое разделение слоёв:
-
-- `ir_graph` это чистое внутреннее представление графа, без DOT-стилей, цветов и шрифтов
+- `ir_graph` это чистое внутреннее представление без DOT-стилей, цветов и шрифтов
 - pass строит только семантический `IrGraph`
-- сериализация и десериализация идут через `to_json/from_json`
-- вся визуальная логика вынесена в `ir_graph_to_dot`
-- dynamic profile добавляется как отдельный merge-этап поверх уже готового статического JSON
+- DOT-специфичная логика вынесена в `ir_graph_to_dot`
+- merge runtime profile это отдельный пост-этап поверх уже готового статического JSON
+- pointer-based таблицы живут только в build-time info builder'а и не попадают в сериализуемый `IrGraph`
 
 Из-за этого один и тот же JSON можно:
 
 - анализировать отдельно
-- мерджить с runtime profile
-- рендерить в разные визуальные представления
+- мержить с runtime profile
+- рендерить в разные представления
 
 ## Утилиты
 
@@ -61,30 +65,21 @@
 - `install/lib/libLLVMIRDumper.so`
 - `install/bin/ir_graph_to_dot`
 - `install/bin/ir_graph_profile_merge`
-- `install/bin/compile_with_plugin`
+- `install/bin/graphcc`
 
-Назначение:
-
-- `libLLVMIRDumper.so` — pass plugin для `clang`
-- `ir_graph_to_dot` — JSON -> DOT
-- `ir_graph_profile_merge` — запуск бинаря + merge runtime profile в JSON
-- `compile_with_plugin` — полный end-to-end driver на C++, аналог Python-скрипта
-
-Python-обвязка тоже сохранена:
+Также сохранена совместимая Python-обёртка:
 
 - `scripts/compile_with_plugin.py`
 
-## Требования
+Она просто вызывает новый `graphcc` driver.
 
-Минимально нужны:
+## Требования
 
 - `cmake`
 - `clang`
-- `LLVM` с установленным CMake-конфигом
+- `LLVM` с CMake config
+- `python3`
 - `graphviz`, если нужен SVG
-- `python3`, только если вы хотите использовать Python-скрипт
-
-Желательно, чтобы `clang` и `LLVM`, для которого собран plugin, были одной версии.
 
 Подмодули:
 
@@ -92,179 +87,236 @@ Python-обвязка тоже сохранена:
 - `3rd_party/nlohmann`
 - `3rd_party/dot-graph-lib`
 
+Если локальный `3rd_party/nlohmann` ещё не доехал, CMake временно умеет брать fallback из `../../3rd_party/nlohmann`.
+
 ## Сборка
 
 ```bash
 bash scripts/build.sh
 ```
 
-## Быстрый старт
+Если хотите вызывать `graphcc` просто по имени из shell, а не через `install/bin/graphcc`, есть два варианта:
 
-Полный pipeline через C++ driver:
+- поставить проект с `CMAKE_INSTALL_PREFIX` в директорию, чей `bin` уже есть в `PATH`
+- включить опциональный symlink:
 
 ```bash
-install/bin/compile_with_plugin \
+cmake -B build \
+  -DGRAPHCC_INSTALL_SYMLINK=ON \
+  -DGRAPHCC_INSTALL_SYMLINK_DIR="$HOME/.local/bin"
+cmake --build build
+cmake --install build --prefix install
+```
+
+Это создаст `~/.local/bin/graphcc -> <install-prefix>/bin/graphcc`.
+Важно: `~/.local/bin` должен быть в `PATH`.
+
+## Driver
+
+Рекомендуемое имя driver'а: `graphcc`.
+
+Базовый сценарий:
+
+```bash
+install/bin/graphcc --workdir examples/fact fact.c -o examples/fact/O1/result.svg --opt-level O1 --program-arg 5
+```
+
+Короткая модель такая же, как у компилятора:
+
+- на вход подаётся исходник
+- `-o` задаёт финальный SVG динамического графа
+- `--emit-*` сохраняют промежуточные представления
+- артефакты складываются в `<workdir>/<opt-level>/...`
+
+По умолчанию driver создаёт:
+
+- `<workdir>/<opt-level>/out`
+- `<workdir>/<opt-level>/tmp`
+
+Во время работы все промежуточные файлы живут в `tmp`.
+Если указан `--emit-json`, `--emit-dot` или `--emit-ll`, нужные артефакты копируются из `tmp` в итоговые каталоги, а затем `tmp` удаляется. Для отладки можно оставить его через `--keep-tmp`.
+
+## Layout артефактов
+
+Для `--workdir examples/fact --opt-level O1` итоговый layout такой:
+
+- `examples/fact/O1/out`
+- `examples/fact/O1/tmp/...`
+- `examples/fact/O1/llvm_ir/before_opt.ll`
+- `examples/fact/O1/llvm_ir/after_opt.ll`
+- `examples/fact/O1/json/before_static.json`
+- `examples/fact/O1/json/after_static.json`
+- `examples/fact/O1/json/before_dynamic.json`
+- `examples/fact/O1/json/after_dynamic.json`
+- `examples/fact/O1/dot/before_static.dot`
+- `examples/fact/O1/dot/after_static.dot`
+- `examples/fact/O1/dot/before_dynamic.dot`
+- `examples/fact/O1/dot/after_dynamic.dot`
+- `examples/fact/O1/svg/before_static.svg`
+- `examples/fact/O1/svg/after_static.svg`
+- `examples/fact/O1/svg/before_dynamic.svg`
+- `examples/fact/O1/svg/after_dynamic.svg`
+
+## Основные флаги `graphcc`
+
+- `source` позиционный путь к исходнику
+- `--workdir` базовая директория; output root будет `<workdir>/<opt-level>`
+- `--opt-level` уровень оптимизации, например `O0`, `O1`, `O2`, `O3`
+- `-o PATH` финальный SVG для `after` dynamic graph
+- `--emit-static-graph` сохранить static SVG
+- `--emit-dynamic-graph` сохранить dynamic SVG
+- `--emit-json` сохранить JSON артефакты
+- `--emit-dot` сохранить DOT артефакты
+- `--emit-ll` сохранить `.ll` snapshot'ы
+- `--static-stage before|after|both`
+- `--dynamic-stage before|after|both`
+- `--program-arg ARG` аргумент для запуска инструментированного бинарника
+- `--program-args ...` альтернативный способ передать argv списком
+- `--extra-clang-arg ARG` дополнительный аргумент в `clang/clang++`
+- `--compiler` явно задать компилятор
+- `--no-svg` не вызывать Graphviz
+- `--keep-tmp` не удалять `tmp`
+
+Замечания:
+
+- если не указать ни `--emit-static-graph`, ни `--emit-dynamic-graph`, но указать `--emit-json`, `--emit-dot` или `--emit-ll`, driver по умолчанию считает, что нужен `after` static pipeline
+- `-o` эквивалентен запросу на `after` dynamic graph
+- `before` и `after` dynamic строятся отдельными instrumented build'ами
+
+## Примеры
+
+### 1. Финальный динамический граф
+
+```bash
+install/bin/graphcc \
   --workdir examples/fact \
-  --source fact.c \
+  fact.c \
   --opt-level O1 \
-  --inject-logging \
-  --profile-after-run \
-  --run-arg 3 \
+  --program-arg 5 \
+  -o examples/fact/O1/result.svg
+```
+
+### 2. Только static JSON для `before` и `after`
+
+```bash
+python3 scripts/graphcc.py \
+  --workdir examples/fact \
+  fact.c \
+  --opt-level O1 \
+  --emit-json \
+  --static-stage both \
   --no-svg
 ```
 
-То же через Python:
+### 3. Static SVG + JSON + DOT
 
 ```bash
-python3 scripts/compile_with_plugin.py \
+python3 scripts/graphcc.py \
   --workdir examples/fact \
-  --source fact.c \
+  fact.c \
   --opt-level O1 \
-  --inject-logging \
-  --profile-after-run \
-  --run-arg 3 \
+  --emit-static-graph \
+  --static-stage both \
+  --emit-json \
+  --emit-dot
+```
+
+### 4. Dynamic JSON + DOT + SVG
+
+```bash
+python3 scripts/graphcc.py \
+  --workdir examples/fact \
+  fact.c \
+  --opt-level O1 \
+  --emit-dynamic-graph \
+  --emit-json \
+  --emit-dot \
+  --program-arg 5
+```
+
+### 5. Both dynamic stages
+
+```bash
+python3 scripts/graphcc.py \
+  --workdir examples/fact \
+  fact.c \
+  --opt-level O1 \
+  --emit-dynamic-graph \
+  --dynamic-stage both \
+  --emit-json \
+  --emit-dot \
+  --program-arg 5 \
   --no-svg
 ```
 
-После этого в `examples/fact/` появятся:
+### 6. Передача argv списком
 
-- `llvm_ir/before_opt.ll`
-- `llvm_ir/after_opt.ll`
-- `json/before_opt.json`
-- `json/after_opt.json`
-- `json/after_opt_profiled.json`
-- `dot/before_opt.dot`
-- `dot/after_opt.dot`
-- `dot/after_opt_profiled.dot`
+```bash
+python3 scripts/graphcc.py \
+  --workdir examples/fact \
+  fact.c \
+  --opt-level O1 \
+  --emit-dynamic-graph \
+  --program-args 5
+```
+
+Если нужно передавать аргументы, начинающиеся с `-`, удобнее использовать повторяющийся `--program-arg`.
 
 ## Примеры визуализации
 
 Ниже один и тот же `examples/fact/fact.c` при `-O1`.
 
-Слева обычный `after_opt` граф без runtime profile.
-Справа граф после `--profile-after-run --run-arg 5`: у basic blocks появился heat coloring, у функций `calls=N`, а у `control_flow/call` edges execution counts.
+Слева `after_static`, справа `after_dynamic` после запуска с `argv = 5`.
+У dynamic graph basic blocks раскрашены по частоте посещения, функции имеют `calls=N`, а `control_flow/call` edges получают execution counts.
 
-| Static `after_opt`                                            | Profiled `after_opt`                                                     |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| ![Static after-opt graph](examples/fact/O1/svg/after_opt.svg) | ![Profiled after-opt graph](examples/fact/O1/svg/after_opt_profiled.svg) |
+| Static `after`                                               | Dynamic `after`                                                |
+| ------------------------------------------------------------ | -------------------------------------------------------------- |
+| ![Static after graph](examples/fact/O1/svg/after_static.svg) | ![Dynamic after graph](examples/fact/O1/svg/after_dynamic.svg) |
 
-## Типичный workflow
+## Отдельные tool'ы
 
-### 1. Только статический граф
-
-```bash
-install/bin/compile_with_plugin \
-  --workdir examples/hello \
-  --source hello.c \
-  --opt-level O1
-```
-
-### 2. Статический граф без SVG
-
-```bash
-install/bin/compile_with_plugin \
-  --workdir examples/hello \
-  --source hello.c \
-  --opt-level O1 \
-  --no-svg
-```
-
-### 3. Статика + динамика
-
-```bash
-install/bin/compile_with_plugin \
-  --workdir examples/fact \
-  --source fact.c \
-  --opt-level O1 \
-  --profile-after-run \
-  --run-arg 3
-```
-
-`--profile-after-run` автоматически включает logging injection на этапе компиляции.
-
-Если программа требует аргументы командной строки, их надо передавать через повторяющийся `--run-arg`.
-
-Пример:
-
-```bash
-install/bin/compile_with_plugin \
-  --workdir examples/fact \
-  --source fact.c \
-  --profile-after-run \
-  --run-arg 3 \
-  --run-arg extra_value
-```
-
-## Основные аргументы `compile_with_plugin`
-
-- `--source` путь к исходному файлу
-- `--workdir` базовая директория для всех относительных путей
-- `--plugin-path` путь к `libLLVMIRDumper.so`
-- `--converter-path` путь к `ir_graph_to_dot`
-- `--profile-tool-path` путь к `ir_graph_profile_merge`
-- `--opt-level` уровень оптимизации, например `O1`, `O2`, `O3`
-- `--binary-out` путь к итоговому бинарнику
-- `--inject-logging` вставить runtime logging в IR
-- `--profile-after-run` запустить бинарник и смержить dynamic profile
-- `--run-arg ARG` аргумент для запуска профилируемого бинарника
-- `--extra-clang-arg ARG` дополнительный аргумент для `clang`
-- `--no-svg` не вызывать Graphviz
-
-Артефакты:
-
-- `--before-ll`, `--after-ll`
-- `--before-json`, `--after-json`, `--profile-json`
-- `--before-dot`, `--after-dot`, `--profile-dot`
-- `--before-svg`, `--after-svg`, `--profile-svg`
-
-## Отдельные утилиты
-
-### JSON -> DOT
+### `ir_graph_to_dot`
 
 ```bash
 install/bin/ir_graph_to_dot \
-  --input-json examples/fact/json/after_opt.json \
-  --output-dot examples/fact/dot/after_opt.dot
+  --input-json examples/fact/O1/json/after_static.json \
+  --output-dot examples/fact/O1/dot/after_static.dot
 ```
 
-### Merge runtime profile
+### `ir_graph_profile_merge`
 
 ```bash
 install/bin/ir_graph_profile_merge \
-  --input-json examples/fact/json/after_opt.json \
-  --binary build/a.out \
-  --output-json examples/fact/json/after_opt_profiled.json \
-  --binary-arg 3
+  --input-json examples/fact/O1/json/after_static.json \
+  --runtime-log examples/fact/O1/tmp/after.runtime.log \
+  --output-json examples/fact/O1/json/after_dynamic.json
 ```
 
-`ir_graph_profile_merge`:
-
-- запускает бинарник
-- фильтрует `[ir-log]` события
-- считает execution counts
-- пишет merged JSON
+`ir_graph_profile_merge` больше не запускает бинарник сам.
+Он делает только одну вещь: читает runtime log и мержит его в статический JSON.
 
 ## Dynamic profile в DOT
 
-После merge-а профилированный DOT содержит:
+После merge-а dynamic DOT содержит:
 
-- `calls=N` у function clusters
-- `count=N` у basic block clusters
+- `calls=N` у функций
+- `count=N` у basic blocks
 - execution count на `control_flow` edges
 - execution count на `call` edges
 
 Цвет basic block зависит от частоты посещения:
 
-- холодные блоки — ближе к бирюзовому
-- горячие блоки — ближе к оранжевому
+- холодные блоки ближе к бирюзовому
+- горячие блоки ближе к оранжевому
 
 ## Ограничения
 
-- если программа при profiling run завершается с ошибкой, merge-этап тоже завершится ошибкой
-- если программа ожидает `argv`, их надо явно передавать через `--run-arg`
+- если profiling run завершается с ошибкой, dynamic merge тоже завершится ошибкой
+- если программе нужны `argv`, их надо явно передавать через `--program-arg` или `--program-args`
+- `-o` по-прежнему относится только к финальному `after_dynamic.svg`
 - dynamic profile сейчас аннотирует:
   - функции
   - basic blocks
   - `control_flow` edges
   - `call` edges
-- остальные рёбра (`data_flow`, `instruction_sequence`) остаются только статическими
+- `data_flow` и `instruction_sequence` остаются только статическими

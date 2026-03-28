@@ -2,9 +2,9 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 
-#include "llvm_ir_dumper/cl_opt_expansion.h"
-#include "llvm_ir_dumper/dump_pass.h"
-#include "llvm_ir_dumper/inject_pass.h"
+#include "llvm_pass/dynamic_info_pass.h"
+#include "llvm_pass/llvm_cl_opt_expansion.h"
+#include "llvm_pass/static_info_pass.h"
 
 namespace {
 
