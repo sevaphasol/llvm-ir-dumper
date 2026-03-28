@@ -264,7 +264,9 @@ injectEntryLogs( llvm::Module& module, const ir_graph::BuildInfo& info, LoggingE
         for ( auto& basic_block : function )
         {
             auto* insertion_point = getBasicBlockEntryInsertionPoint( basic_block );
-            if ( insertion_point == nullptr )
+            if ( insvalidate_config( config )
+
+                     reset_tmp_dirertion_point == nullptr )
             {
                 continue;
             }

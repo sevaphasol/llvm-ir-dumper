@@ -20,5 +20,19 @@ static llvm::cl::opt<std::string>
 
 static llvm::cl::opt<bool>
     EnableLoggingInjection( "dumper-pass-enable-logging-injection",
-                            llvm::cl::desc( "Inject runtime logging instrumentation" ),
+                            llvm::cl::desc(
+                                "Inject runtime logging instrumentation after optimization "
+                                "(compatibility alias)" ),
+                            llvm::cl::init( false ) );
+
+static llvm::cl::opt<bool>
+    EnableBeforeLoggingInjection( "dumper-pass-enable-before-logging-injection",
+                                  llvm::cl::desc(
+                                      "Inject runtime logging instrumentation before optimization" ),
+                                  llvm::cl::init( false ) );
+
+static llvm::cl::opt<bool>
+    EnableAfterLoggingInjection( "dumper-pass-enable-after-logging-injection",
+                                 llvm::cl::desc(
+                                     "Inject runtime logging instrumentation after optimization" ),
                             llvm::cl::init( false ) );

@@ -35,22 +35,21 @@ llvmGetPassPluginInfo()
     const auto callback = []( llvm::PassBuilder& pass_builder ) {
         pass_builder.registerPipelineStartEPCallback(
             []( llvm::ModulePassManager& pass_manager, auto ) {
-                return registerDumperPass( pass_manager,
-                                           JsonOutBeforeOpt,
-                                           IrOutBeforeOpt,
-                                           "before-opt" );
+                registerDumperPass( pass_manager, JsonOutBeforeOpt, IrOutBeforeOpt, "before-opt" );
+
+                if ( EnableBeforeLoggingInjection )
+                {
+                    pass_manager.addPass( llvm_ir_inject_pass::InjectPass{} );
+                }
             } );
         pass_builder.registerOptimizerLastEPCallback( []( llvm::ModulePassManager& pass_manager,
                                                           auto ) {
-            auto res =
-                registerDumperPass( pass_manager, JsonOutAfterOpt, IrOutAfterOpt, "after-opt" );
+            registerDumperPass( pass_manager, JsonOutAfterOpt, IrOutAfterOpt, "after-opt" );
 
-            if ( EnableLoggingInjection )
+            if ( EnableLoggingInjection || EnableAfterLoggingInjection )
             {
                 pass_manager.addPass( llvm_ir_inject_pass::InjectPass{} );
             }
-
-            return res;
         } );
     };
 

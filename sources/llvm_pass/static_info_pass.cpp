@@ -7,7 +7,8 @@
 #include "ir_graph/ir_graph_builder.h"
 #include "ir_graph/ir_graph_serde.h"
 
-namespace llvm_ir_dump_pass {
+namespace llvm_pass {
+namespace dump {
 
 DumpPass::DumpPass( const std::string& json_out, const std::string& ll_out )
     : json_out_( json_out ), ll_out_( ll_out )
@@ -53,4 +54,5 @@ DumpPass::dumpModule( llvm::Module&         module,
     json_dump << ir_graph::serialize( build.graph ) << '\n';
 }
 
-} // namespace llvm_ir_dump_pass
+} // namespace dump
+} // namespace llvm_pass

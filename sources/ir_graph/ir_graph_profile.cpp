@@ -38,8 +38,8 @@ parseUnsigned( std::string_view value, std::string_view field_name )
 
     if ( parse.ec != std::errc{} || parse.ptr != end )
     {
-        throw std::runtime_error( "invalid numeric value for field '" + std::string( field_name ) +
-                                  "': " + std::string( value ) );
+        throw std::runtime_error( "invalid numeric value for field '" +
+                                  std::string( field_name ) + "': " + std::string( value ) );
     }
 
     return result;
@@ -56,9 +56,9 @@ requireUnsignedField( std::string_view fields,
     while ( cursor < fields.size() )
     {
         const auto next_space = fields.find( ' ', cursor );
-        const auto token =
-            fields.substr( cursor, next_space == std::string_view::npos ? fields.size() - cursor
-                                                                        : next_space - cursor );
+        const auto token      = fields.substr(
+            cursor,
+            next_space == std::string_view::npos ? fields.size() - cursor : next_space - cursor );
         const auto equals_pos = token.find( '=' );
 
         if ( equals_pos != std::string_view::npos && token.substr( 0, equals_pos ) == key )
@@ -90,21 +90,20 @@ parseRuntimeProfileLine( RuntimeProfile& profile, std::string_view raw_line )
     const auto payload    = line.substr( kLogPrefix.size() );
     const auto event_end  = payload.find( ' ' );
     const auto event_name = payload.substr( 0, event_end );
-    const auto fields =
-        event_end == std::string_view::npos ? std::string_view{} : payload.substr( event_end + 1 );
+    const auto fields     = event_end == std::string_view::npos ? std::string_view{}
+                                                                : payload.substr( event_end + 1 );
 
     if ( event_name == "func_enter" )
     {
-        ++profile.function_execution_counts[requireUnsignedField( fields, "fid", event_name, line )];
+        ++profile
+              .function_execution_counts[requireUnsignedField( fields, "fid", event_name, line )];
         return;
     }
 
     if ( event_name == "bb_enter" )
     {
-        ++profile.basic_block_execution_counts[requireUnsignedField( fields,
-                                                                     "bbid",
-                                                                     event_name,
-                                                                     line )];
+        ++profile.basic_block_execution_counts
+              [requireUnsignedField( fields, "bbid", event_name, line )];
         return;
     }
 
@@ -124,8 +123,9 @@ initializeProfileFields( ir_graph::Graph& graph )
           ++function_id )
     {
         auto& function = graph.function( function_id );
-        function.executionCount( function.entryBasicBlockId().has_value() ? std::optional<std::uint64_t>{ 0 }
-                                                                          : std::nullopt );
+        function.executionCount( function.entryBasicBlockId().has_value()
+                                     ? std::optional<std::uint64_t>{ 0 }
+                                     : std::nullopt );
     }
 
     for ( auto basic_block_id = ir_graph::Id{ 0 }; basic_block_id < graph.basicBlocks().size();
@@ -136,10 +136,11 @@ initializeProfileFields( ir_graph::Graph& graph )
 
     for ( auto edge_id = ir_graph::Id{ 0 }; edge_id < graph.edges().size(); ++edge_id )
     {
-        auto& edge = graph.edge( edge_id );
-        const bool is_profiled_edge =
-            edge.kind() == ir_graph::EdgeKind::ControlFlow || edge.kind() == ir_graph::EdgeKind::Call;
-        edge.executionCount( is_profiled_edge ? std::optional<std::uint64_t>{ 0 } : std::nullopt );
+        auto&      edge             = graph.edge( edge_id );
+        const bool is_profiled_edge = edge.kind() == ir_graph::EdgeKind::ControlFlow ||
+                                      edge.kind() == ir_graph::EdgeKind::Call;
+        edge.executionCount( is_profiled_edge ? std::optional<std::uint64_t>{ 0 }
+                                              : std::nullopt );
     }
 }
 
@@ -161,10 +162,10 @@ parseRuntimeProfile( std::string_view runtime_output )
     while ( line_begin <= runtime_output.size() )
     {
         const auto line_end = runtime_output.find( '\n', line_begin );
-        const auto line     = runtime_output.substr(
-            line_begin,
-            line_end == std::string_view::npos ? runtime_output.size() - line_begin
-                                               : line_end - line_begin );
+        const auto line     = runtime_output.substr( line_begin,
+                                                 line_end == std::string_view::npos
+                                                         ? runtime_output.size() - line_begin
+                                                         : line_end - line_begin );
 
         if ( !line.empty() )
         {
@@ -183,10 +184,8 @@ parseRuntimeProfile( std::string_view runtime_output )
 }
 
 void
-applyRuntimeProfile( ir_graph::Graph& graph, const RuntimeProfile& profile )
+applyRuntimeProfileOnFuncs( ir_graph::Graph& graph, const RuntimeProfile& profile )
 {
-    initializeProfileFields( graph );
-
     for ( const auto& [function_id, execution_count] : profile.function_execution_counts )
     {
         if ( function_id >= graph.functions().size() )
@@ -197,7 +196,11 @@ applyRuntimeProfile( ir_graph::Graph& graph, const RuntimeProfile& profile )
 
         graph.function( function_id ).executionCount( execution_count );
     }
+}
 
+void
+applyRuntimeProfileOnBasicBlocks( ir_graph::Graph& graph, const RuntimeProfile& profile )
+{
     for ( const auto& [basic_block_id, execution_count] : profile.basic_block_execution_counts )
     {
         if ( basic_block_id >= graph.basicBlocks().size() )
@@ -208,7 +211,11 @@ applyRuntimeProfile( ir_graph::Graph& graph, const RuntimeProfile& profile )
 
         graph.basicBlock( basic_block_id ).executionCount( execution_count );
     }
+}
 
+void
+applyRuntimeProfileOnEdges( ir_graph::Graph& graph, const RuntimeProfile& profile )
+{
     for ( const auto& [edge_id, execution_count] : profile.edge_execution_counts )
     {
         if ( edge_id >= graph.edges().size() )
@@ -217,9 +224,9 @@ applyRuntimeProfile( ir_graph::Graph& graph, const RuntimeProfile& profile )
                                       std::to_string( edge_id ) );
         }
 
-        auto& edge = graph.edge( edge_id );
-        const bool is_profiled_edge =
-            edge.kind() == ir_graph::EdgeKind::ControlFlow || edge.kind() == ir_graph::EdgeKind::Call;
+        auto&      edge             = graph.edge( edge_id );
+        const bool is_profiled_edge = edge.kind() == ir_graph::EdgeKind::ControlFlow ||
+                                      edge.kind() == ir_graph::EdgeKind::Call;
         if ( !is_profiled_edge )
         {
             throw std::runtime_error( "runtime profile references non-profiled edge id " +
@@ -228,6 +235,16 @@ applyRuntimeProfile( ir_graph::Graph& graph, const RuntimeProfile& profile )
 
         edge.executionCount( execution_count );
     }
+}
+
+void
+applyRuntimeProfile( ir_graph::Graph& graph, const RuntimeProfile& profile )
+{
+    initializeProfileFields( graph );
+
+    applyRuntimeProfileOnFuncs( graph, profile );
+    applyRuntimeProfileOnBasicBlocks( graph, profile );
+    applyRuntimeProfileOnEdges( graph, profile );
 }
 
 } // namespace ir_graph
