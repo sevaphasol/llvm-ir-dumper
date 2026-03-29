@@ -1,0 +1,15 @@
+[ir-log] func_enter fid=0
+[ir-log] bb_enter fid=0 bbid=0
+[ir-log] call_edge eid=20 src_fid=0 src_bbid=0 dst_fid=2 call_node=2
+[ir-log] func_enter fid=2
+[ir-log] bb_enter fid=2 bbid=1
+[ir-log] call_edge eid=25 src_fid=0 src_bbid=0 dst_fid=2 call_node=3
+[ir-log] func_enter fid=2
+[ir-log] bb_enter fid=2 bbid=1
+[ir-log] call_edge eid=30 src_fid=0 src_bbid=0 dst_fid=2 call_node=4
+[ir-log] func_enter fid=2
+[ir-log] bb_enter fid=2 bbid=1
+[ir-log] call_edge eid=33 src_fid=0 src_bbid=0 dst_fid=2 call_node=5
+[ir-log] func_enter fid=2
+[ir-log] bb_enter fid=2 bbid=1
+56

@@ -1,0 +1,44 @@
+[ir-log] func_enter fid=3
+[ir-log] bb_enter fid=3 bbid=4
+[ir-log] cfg_edge eid=64 fid=3 src_bbid=4 dst_bbid=6 succ=1
+[ir-log] bb_enter fid=3 bbid=6
+[ir-log] call_edge eid=150 src_fid=3 src_bbid=6 dst_fid=5 call_node=43
+[ir-log] func_enter fid=5
+[ir-log] bb_enter fid=5 bbid=12
+[ir-log] cfg_edge eid=65 fid=3 src_bbid=6 dst_bbid=7 succ=0
+[ir-log] bb_enter fid=3 bbid=7
+[ir-log] call_edge eid=161 src_fid=3 src_bbid=7 dst_fid=0 call_node=52
+[ir-log] func_enter fid=0
+[ir-log] bb_enter fid=0 bbid=0
+[ir-log] cfg_edge eid=60 fid=0 src_bbid=0 dst_bbid=2 succ=1
+[ir-log] bb_enter fid=0 bbid=2
+[ir-log] call_edge eid=103 src_fid=0 src_bbid=2 dst_fid=0 call_node=14
+[ir-log] func_enter fid=0
+[ir-log] bb_enter fid=0 bbid=0
+[ir-log] cfg_edge eid=60 fid=0 src_bbid=0 dst_bbid=2 succ=1
+[ir-log] bb_enter fid=0 bbid=2
+[ir-log] call_edge eid=103 src_fid=0 src_bbid=2 dst_fid=0 call_node=14
+[ir-log] func_enter fid=0
+[ir-log] bb_enter fid=0 bbid=0
+[ir-log] cfg_edge eid=60 fid=0 src_bbid=0 dst_bbid=2 succ=1
+[ir-log] bb_enter fid=0 bbid=2
+[ir-log] call_edge eid=103 src_fid=0 src_bbid=2 dst_fid=0 call_node=14
+[ir-log] func_enter fid=0
+[ir-log] bb_enter fid=0 bbid=0
+[ir-log] cfg_edge eid=59 fid=0 src_bbid=0 dst_bbid=1 succ=0
+[ir-log] bb_enter fid=0 bbid=1
+[ir-log] cfg_edge eid=62 fid=0 src_bbid=1 dst_bbid=3 succ=0
+[ir-log] bb_enter fid=0 bbid=3
+[ir-log] cfg_edge eid=61 fid=0 src_bbid=2 dst_bbid=3 succ=0
+[ir-log] bb_enter fid=0 bbid=3
+[ir-log] cfg_edge eid=61 fid=0 src_bbid=2 dst_bbid=3 succ=0
+[ir-log] bb_enter fid=0 bbid=3
+[ir-log] cfg_edge eid=61 fid=0 src_bbid=2 dst_bbid=3 succ=0
+[ir-log] bb_enter fid=0 bbid=3
+Fact(4) = 24
+[ir-log] cfg_edge eid=67 fid=3 src_bbid=7 dst_bbid=9 succ=0
+[ir-log] bb_enter fid=3 bbid=9
+[ir-log] cfg_edge eid=68 fid=3 src_bbid=9 dst_bbid=10 succ=0
+[ir-log] bb_enter fid=3 bbid=10
+[ir-log] cfg_edge eid=70 fid=3 src_bbid=10 dst_bbid=11 succ=0
+[ir-log] bb_enter fid=3 bbid=11

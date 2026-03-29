@@ -1,0 +1,339 @@
+digraph "/home/sevsol/Projects/4sem/lisitsyn/llvm-ir-dumper/wt/graph_serialization_v2/examples/fact/fact.c" {
+  graph [pad=0.3, rankdir=TB, compound=true, overlap=false, nodesep=0.9, ranksep=1.3, splines=true];
+  node [fontname="SF Pro Text Bold 10", fontsize=15];
+  edge [fontname="SF Pro Text Bold 10", fontsize=15];
+subgraph cluster_func_0 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="fact\ncalls=0";
+  subgraph cluster_func_0_bb_0 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#56c7c3";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %1\ncount=0";
+    node_0 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_1 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_37 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 %0"];
+    node_38 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 2"];
+  }
+  subgraph cluster_func_0_bb_1 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#56c7c3";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %3\ncount=0";
+    node_2 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_3 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_4 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="add"];
+    node_5 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="mul"];
+    node_6 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_7 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_39 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 -1"];
+    node_40 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 3"];
+  }
+  subgraph cluster_func_0_bb_2 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#56c7c3";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %9\ncount=0";
+    node_8 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_9 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+  }
+}
+subgraph cluster_func_1 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="main\ncalls=1";
+  subgraph cluster_func_1_bb_3 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a5b592";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %2\ncount=1";
+    node_10 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_11 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_41 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 %0"];
+    node_42 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 2"];
+  }
+  subgraph cluster_func_1_bb_4 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#56c7c3";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %4\ncount=0";
+    node_12 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_13 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_43 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str.2"];
+    node_44 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @puts"];
+  }
+  subgraph cluster_func_1_bb_5 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a5b592";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %6\ncount=1";
+    node_14 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_15 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="load"];
+    node_16 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_17 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_45 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @__errno_location"];
+    node_46 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 0"];
+  }
+  subgraph cluster_func_1_bb_6 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a5b592";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %10\ncount=1";
+    node_18 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="getelementptr"];
+    node_19 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="load"];
+    node_20 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_21 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="sext"];
+    node_22 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_23 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_47 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr %1"];
+    node_48 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 1"];
+    node_49 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @atoi"];
+    node_50 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i32 2"];
+  }
+  subgraph cluster_func_1_bb_7 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#f4a261";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %16\ncount=3";
+    node_24 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_25 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_26 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="add"];
+    node_27 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="mul"];
+    node_28 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="icmp"];
+    node_29 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_51 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 -1"];
+    node_52 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="i64 3"];
+  }
+  subgraph cluster_func_1_bb_8 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a5b592";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %22\ncount=1";
+    node_30 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_31 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_32 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_53 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @.str.1"];
+    node_54 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @printf"];
+  }
+  subgraph cluster_func_1_bb_9 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#56c7c3";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %25\ncount=0";
+    node_33 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="call"];
+    node_34 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="br"];
+    node_55 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @str"];
+    node_56 [shape="box", style="rounded, filled", fillcolor="#d66868", color="#000000", fontcolor="#000000", label="ptr @puts"];
+  }
+  subgraph cluster_func_1_bb_10 {
+    shape="box";
+    style="rounded, filled";
+    fillcolor="#a5b592";
+    color="#000000";
+    penwidth=2;
+    fontsize=15;
+    fontname="SF Pro Text Bold 10";
+    label="label %27\ncount=1";
+    node_35 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="phi"];
+    node_36 [shape="box", style="rounded, filled", fillcolor="#6d95df", color="#000000", fontcolor="#000000", label="ret"];
+  }
+}
+subgraph cluster_func_2 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="printf";
+}
+subgraph cluster_func_3 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="atoi";
+}
+subgraph cluster_func_4 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="__errno_location";
+}
+subgraph cluster_func_5 {
+  shape="box";
+  style="rounded, filled";
+  fillcolor="#e3e3e3";
+  color="#000000";
+  penwidth=2;
+  fontsize=20;
+  fontname="SF Pro Text Bold 10";
+  label="puts";
+}
+node_0 -> node_1 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_2 -> node_3 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_3 -> node_4 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_4 -> node_5 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_5 -> node_6 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_6 -> node_7 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_8 -> node_9 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_10 -> node_11 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_12 -> node_13 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_14 -> node_15 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_15 -> node_16 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_16 -> node_17 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_18 -> node_19 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_19 -> node_20 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_20 -> node_21 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_21 -> node_22 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_22 -> node_23 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_24 -> node_25 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_25 -> node_26 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_26 -> node_27 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_27 -> node_28 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_28 -> node_29 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_30 -> node_31 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_31 -> node_32 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_33 -> node_34 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_35 -> node_36 [color="#ff3636", weight=1000, penwidth=3, style="solid", constraint=true];
+node_7 -> node_2 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_1 -> node_2 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_1 -> node_8 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_7 -> node_8 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_11 -> node_12 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_11 -> node_14 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="1"];
+node_17 -> node_18 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="1"];
+node_29 -> node_24 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="2"];
+node_23 -> node_24 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="1"];
+node_23 -> node_30 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_29 -> node_30 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="1"];
+node_17 -> node_33 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_13 -> node_35 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_32 -> node_35 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="1"];
+node_34 -> node_35 [color="#ff8800", weight=10000, penwidth=5, style="solid", constraint=true, label="0"];
+node_0 -> node_1 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%2"];
+node_37 -> node_0 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%0"];
+node_38 -> node_0 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_2 -> node_6 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%4"];
+node_2 -> node_4 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%4"];
+node_2 -> node_5 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%4"];
+node_7 -> node_2 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %6"];
+node_1 -> node_2 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %0"];
+node_3 -> node_5 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%5"];
+node_7 -> node_3 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %7"];
+node_1 -> node_3 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 1"];
+node_4 -> node_2 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%6"];
+node_39 -> node_4 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_5 -> node_8 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%7"];
+node_5 -> node_3 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%7"];
+node_6 -> node_7 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%8"];
+node_40 -> node_6 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_8 -> node_9 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%10"];
+node_1 -> node_8 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 1"];
+node_7 -> node_8 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %7"];
+node_10 -> node_11 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%3"];
+node_41 -> node_10 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%0"];
+node_42 -> node_10 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_43 -> node_12 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_44 -> node_12 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_14 -> node_15 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%7"];
+node_45 -> node_14 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_15 -> node_16 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%8"];
+node_16 -> node_17 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%9"];
+node_46 -> node_16 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_18 -> node_19 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%11"];
+node_47 -> node_18 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%1"];
+node_48 -> node_18 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_19 -> node_20 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%12"];
+node_20 -> node_22 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%13"];
+node_20 -> node_21 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%13"];
+node_49 -> node_20 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_21 -> node_24 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%14"];
+node_21 -> node_31 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%14"];
+node_22 -> node_23 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%15"];
+node_50 -> node_22 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_24 -> node_28 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%17"];
+node_24 -> node_27 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%17"];
+node_24 -> node_26 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%17"];
+node_29 -> node_24 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %19"];
+node_23 -> node_24 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %14"];
+node_25 -> node_27 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%18"];
+node_29 -> node_25 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %20"];
+node_23 -> node_25 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 1"];
+node_26 -> node_24 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%19"];
+node_51 -> node_26 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_27 -> node_30 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%20"];
+node_27 -> node_25 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%20"];
+node_28 -> node_29 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%21"];
+node_52 -> node_28 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_30 -> node_31 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%23"];
+node_23 -> node_30 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 1"];
+node_29 -> node_30 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i64 %20"];
+node_53 -> node_31 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_54 -> node_31 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_55 -> node_33 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_56 -> node_33 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true];
+node_35 -> node_36 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="%28"];
+node_13 -> node_35 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i32 1"];
+node_32 -> node_35 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i32 0"];
+node_34 -> node_35 [color="#00b3ff", weight=1, penwidth=2, style="solid", constraint=true, label="i32 1"];
+}

@@ -1,0 +1,157 @@
+{
+  "basic_blocks": [
+    {
+      "entry_node_id": 0,
+      "execution_count": 1,
+      "function_id": 0,
+      "id": 0,
+      "label": "label %0"
+    }
+  ],
+  "edges": [
+    {
+      "execution_count": null,
+      "id": 0,
+      "kind": "instruction_sequence",
+      "label": null,
+      "source_basic_block_id": null,
+      "source_function_id": null,
+      "source_node_id": 0,
+      "successor_index": null,
+      "target_basic_block_id": null,
+      "target_function_id": null,
+      "target_node_id": 1
+    },
+    {
+      "execution_count": null,
+      "id": 1,
+      "kind": "data_flow",
+      "label": null,
+      "source_basic_block_id": null,
+      "source_function_id": null,
+      "source_node_id": 2,
+      "successor_index": null,
+      "target_basic_block_id": null,
+      "target_function_id": null,
+      "target_node_id": 0
+    },
+    {
+      "execution_count": null,
+      "id": 2,
+      "kind": "data_flow",
+      "label": null,
+      "source_basic_block_id": null,
+      "source_function_id": null,
+      "source_node_id": 3,
+      "successor_index": null,
+      "target_basic_block_id": null,
+      "target_function_id": null,
+      "target_node_id": 0
+    },
+    {
+      "execution_count": null,
+      "id": 3,
+      "kind": "data_flow",
+      "label": null,
+      "source_basic_block_id": null,
+      "source_function_id": null,
+      "source_node_id": 4,
+      "successor_index": null,
+      "target_basic_block_id": null,
+      "target_function_id": null,
+      "target_node_id": 0
+    },
+    {
+      "execution_count": null,
+      "id": 4,
+      "kind": "data_flow",
+      "label": null,
+      "source_basic_block_id": null,
+      "source_function_id": null,
+      "source_node_id": 5,
+      "successor_index": null,
+      "target_basic_block_id": null,
+      "target_function_id": null,
+      "target_node_id": 1
+    }
+  ],
+  "functions": [
+    {
+      "entry_basic_block_id": 0,
+      "entry_node_id": 0,
+      "execution_count": 1,
+      "id": 0,
+      "name": "main"
+    },
+    {
+      "entry_basic_block_id": null,
+      "entry_node_id": null,
+      "execution_count": null,
+      "id": 1,
+      "name": "printf"
+    }
+  ],
+  "module_name": "/home/sevsol/Projects/4sem/lisitsyn/llvm-ir-dumper/wt/graph_serialization_v2/examples/calc/calc.c",
+  "nodes": [
+    {
+      "basic_block_id": 0,
+      "consumer_instruction_id": null,
+      "function_id": 0,
+      "id": 0,
+      "kind": "instruction",
+      "label": "call",
+      "opcode_name": "call",
+      "operand_index": null
+    },
+    {
+      "basic_block_id": 0,
+      "consumer_instruction_id": null,
+      "function_id": 0,
+      "id": 1,
+      "kind": "instruction",
+      "label": "ret",
+      "opcode_name": "ret",
+      "operand_index": null
+    },
+    {
+      "basic_block_id": 0,
+      "consumer_instruction_id": 0,
+      "function_id": 0,
+      "id": 2,
+      "kind": "operand",
+      "label": "ptr @.str",
+      "opcode_name": null,
+      "operand_index": 0
+    },
+    {
+      "basic_block_id": 0,
+      "consumer_instruction_id": 0,
+      "function_id": 0,
+      "id": 3,
+      "kind": "operand",
+      "label": "i32 56",
+      "opcode_name": null,
+      "operand_index": 1
+    },
+    {
+      "basic_block_id": 0,
+      "consumer_instruction_id": 0,
+      "function_id": 0,
+      "id": 4,
+      "kind": "operand",
+      "label": "ptr @printf",
+      "opcode_name": null,
+      "operand_index": 2
+    },
+    {
+      "basic_block_id": 0,
+      "consumer_instruction_id": 1,
+      "function_id": 0,
+      "id": 5,
+      "kind": "operand",
+      "label": "i32 0",
+      "opcode_name": null,
+      "operand_index": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[ir-log] func_enter fid=1
+[ir-log] bb_enter fid=1 bbid=7
+[ir-log] cfg_edge eid=103 fid=1 src_bbid=7 dst_bbid=9 succ=0
+[ir-log] bb_enter fid=1 bbid=9
+[ir-log] cfg_edge eid=104 fid=1 src_bbid=9 dst_bbid=10 succ=0
+[ir-log] bb_enter fid=1 bbid=10
+[ir-log] cfg_edge eid=105 fid=1 src_bbid=10 dst_bbid=11 succ=1
+[ir-log] bb_enter fid=1 bbid=11
+[ir-log] cfg_edge eid=109 fid=1 src_bbid=11 dst_bbid=14 succ=0
+[ir-log] bb_enter fid=1 bbid=14
+[ir-log] cfg_edge eid=112 fid=1 src_bbid=14 dst_bbid=15 succ=1
+[ir-log] bb_enter fid=1 bbid=15
+[ir-log] cfg_edge eid=111 fid=1 src_bbid=15 dst_bbid=15 succ=1
+[ir-log] bb_enter fid=1 bbid=15
+[ir-log] cfg_edge eid=111 fid=1 src_bbid=15 dst_bbid=15 succ=1
+[ir-log] bb_enter fid=1 bbid=15
+[ir-log] cfg_edge eid=115 fid=1 src_bbid=15 dst_bbid=16 succ=0
+[ir-log] bb_enter fid=1 bbid=16
+Fact(4) = 24
+[ir-log] cfg_edge eid=118 fid=1 src_bbid=16 dst_bbid=18 succ=0
+[ir-log] bb_enter fid=1 bbid=18
