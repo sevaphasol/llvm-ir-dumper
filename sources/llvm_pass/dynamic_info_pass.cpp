@@ -15,39 +15,128 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 
-#include "ir_graph/ir_graph.h"
 #include "ir_graph/ir_graph_builder.h"
 
 namespace llvm_ir_inject_pass {
 
-namespace {
-
-constexpr llvm::StringLiteral kFunctionEnterFormat   = "[ir-log] func_enter fid=%llu\n";
-constexpr llvm::StringLiteral kBasicBlockEnterFormat = "[ir-log] bb_enter fid=%llu bbid=%llu\n";
-constexpr llvm::StringLiteral kCallEdgeFormat =
-    "[ir-log] call_edge eid=%llu src_fid=%llu src_bbid=%llu dst_fid=%llu call_node=%llu\n";
-constexpr llvm::StringLiteral kCfgEdgeFormat =
-    "[ir-log] cfg_edge eid=%llu fid=%llu src_bbid=%llu dst_bbid=%llu succ=%llu\n";
-
-struct OriginalCfgEdge
+LoggingEmitter::LoggingEmitter( llvm::Module& module )
+    : module_( module ),
+      context_( module.getContext() ),
+      printf_function_( getPrintfFunction( module ) ),
+      function_enter_format_( createFormatString( kFunctionEnterFormat ) ),
+      basic_block_enter_format_( createFormatString( kBasicBlockEnterFormat ) ),
+      call_edge_format_( createFormatString( kCallEdgeFormat ) ),
+      cfg_edge_format_( createFormatString( kCfgEdgeFormat ) )
 {
-    llvm::BasicBlock* source                = nullptr;
-    llvm::BasicBlock* target                = nullptr;
-    ir_graph::Id      edge_id               = 0;
-    ir_graph::Id      source_function_id    = 0;
-    ir_graph::Id      source_basic_block_id = 0;
-    ir_graph::Id      target_basic_block_id = 0;
-    std::uint64_t     successor_index       = 0;
-};
+}
+
+llvm::Value*
+LoggingEmitter::i64( std::uint64_t value ) const
+{
+    return llvm::ConstantInt::get( llvm::Type::getInt64Ty( context_ ), value );
+}
+
+void
+LoggingEmitter::emitFunctionEnter( llvm::IRBuilder<>& builder, std::uint64_t function_id )
+{
+    emit( builder, function_enter_format_, { i64( function_id ) } );
+}
+
+void
+LoggingEmitter::emitBasicBlockEnter( llvm::IRBuilder<>& builder,
+                                     std::uint64_t      function_id,
+                                     std::uint64_t      basic_block_id )
+{
+    emit( builder, basic_block_enter_format_, { i64( function_id ), i64( basic_block_id ) } );
+}
+
+void
+LoggingEmitter::emitCallEdgeBefore( llvm::Instruction* insertion_point,
+                                    std::uint64_t      edge_id,
+                                    std::uint64_t      source_function_id,
+                                    std::uint64_t      source_basic_block_id,
+                                    std::uint64_t      target_function_id,
+                                    std::uint64_t      source_node_id )
+{
+    emitBefore( insertion_point,
+                call_edge_format_,
+                { i64( edge_id ),
+                  i64( source_function_id ),
+                  i64( source_basic_block_id ),
+                  i64( target_function_id ),
+                  i64( source_node_id ) } );
+}
+
+void
+LoggingEmitter::emitCfgEdgeBefore( llvm::Instruction* insertion_point,
+                                   std::uint64_t      edge_id,
+                                   std::uint64_t      source_function_id,
+                                   std::uint64_t      source_basic_block_id,
+                                   std::uint64_t      target_basic_block_id,
+                                   std::uint64_t      successor_index )
+{
+    emitBefore( insertion_point,
+                cfg_edge_format_,
+                { i64( edge_id ),
+                  i64( source_function_id ),
+                  i64( source_basic_block_id ),
+                  i64( target_basic_block_id ),
+                  i64( successor_index ) } );
+}
+
+void
+LoggingEmitter::emitBefore( llvm::Instruction*                  insertion_point,
+                            llvm::Constant*                     format,
+                            std::initializer_list<llvm::Value*> args )
+{
+    if ( insertion_point == nullptr )
+    {
+        return;
+    }
+
+    llvm::IRBuilder<> builder( insertion_point );
+    emit( builder, format, args );
+}
+
+llvm::FunctionCallee
+LoggingEmitter::getPrintfFunction( llvm::Module& module )
+{
+    auto& context = module.getContext();
+    auto* printf_type =
+        llvm::FunctionType::get( llvm::Type::getInt32Ty( context ),
+                                 llvm::ArrayRef<llvm::Type*>{ llvm::PointerType::getUnqual(
+                                     llvm::Type::getInt8Ty( context ) ) },
+                                 true );
+    return module.getOrInsertFunction( "printf", printf_type );
+}
+
+llvm::Constant*
+LoggingEmitter::createFormatString( llvm::StringRef format )
+{
+    llvm::IRBuilder<> builder( context_ );
+    return llvm::cast<llvm::Constant>( builder.CreateGlobalStringPtr( format, "", 0, &module_ ) );
+}
+
+void
+LoggingEmitter::emit( llvm::IRBuilder<>&                  builder,
+                      llvm::Constant*                     format,
+                      std::initializer_list<llvm::Value*> args )
+{
+    llvm::SmallVector<llvm::Value*, 6> printf_args;
+    printf_args.reserve( args.size() + 1 );
+    printf_args.push_back( format );
+    printf_args.append( args.begin(), args.end() );
+    builder.CreateCall( printf_function_, printf_args );
+}
 
 bool
-isDefinedFunction( const llvm::Function& function )
+InjectPass::isDefinedFunction( const llvm::Function& function )
 {
     return !function.isDeclaration();
 }
 
 llvm::Instruction*
-getBasicBlockEntryInsertionPoint( llvm::BasicBlock& basic_block )
+InjectPass::getBasicBlockEntryInsertionPoint( llvm::BasicBlock& basic_block )
 {
     auto insertion_it = basic_block.getFirstInsertionPt();
     if ( insertion_it != basic_block.end() )
@@ -58,140 +147,15 @@ getBasicBlockEntryInsertionPoint( llvm::BasicBlock& basic_block )
     return basic_block.getTerminator();
 }
 
-class LoggingEmitter {
-  public:
-    explicit LoggingEmitter( llvm::Module& module )
-        : module_( module ),
-          context_( module.getContext() ),
-          printf_function_( getPrintfFunction( module ) ),
-          function_enter_format_( createFormatString( kFunctionEnterFormat ) ),
-          basic_block_enter_format_( createFormatString( kBasicBlockEnterFormat ) ),
-          call_edge_format_( createFormatString( kCallEdgeFormat ) ),
-          cfg_edge_format_( createFormatString( kCfgEdgeFormat ) )
-    {
-    }
-
-    llvm::Value*
-    i64( std::uint64_t value ) const
-    {
-        return llvm::ConstantInt::get( llvm::Type::getInt64Ty( context_ ), value );
-    }
-
-    void
-    emitFunctionEnter( llvm::IRBuilder<>& builder, std::uint64_t function_id )
-    {
-        emit( builder, function_enter_format_, { i64( function_id ) } );
-    }
-
-    void
-    emitBasicBlockEnter( llvm::IRBuilder<>& builder,
-                         std::uint64_t      function_id,
-                         std::uint64_t      basic_block_id )
-    {
-        emit( builder, basic_block_enter_format_, { i64( function_id ), i64( basic_block_id ) } );
-    }
-
-    void
-    emitCallEdgeBefore( llvm::Instruction* insertion_point,
-                        std::uint64_t      edge_id,
-                        std::uint64_t      source_function_id,
-                        std::uint64_t      source_basic_block_id,
-                        std::uint64_t      target_function_id,
-                        std::uint64_t      source_node_id )
-    {
-        emitBefore( insertion_point,
-                    call_edge_format_,
-                    { i64( edge_id ),
-                      i64( source_function_id ),
-                      i64( source_basic_block_id ),
-                      i64( target_function_id ),
-                      i64( source_node_id ) } );
-    }
-
-    void
-    emitCfgEdgeBefore( llvm::Instruction* insertion_point,
-                       std::uint64_t      edge_id,
-                       std::uint64_t      source_function_id,
-                       std::uint64_t      source_basic_block_id,
-                       std::uint64_t      target_basic_block_id,
-                       std::uint64_t      successor_index )
-    {
-        emitBefore( insertion_point,
-                    cfg_edge_format_,
-                    { i64( edge_id ),
-                      i64( source_function_id ),
-                      i64( source_basic_block_id ),
-                      i64( target_basic_block_id ),
-                      i64( successor_index ) } );
-    }
-
-  private:
-    void
-    emitBefore( llvm::Instruction*                  insertion_point,
-                llvm::Constant*                     format,
-                std::initializer_list<llvm::Value*> args )
-    {
-        if ( insertion_point == nullptr )
-        {
-            return;
-        }
-
-        llvm::IRBuilder<> builder( insertion_point );
-        emit( builder, format, args );
-    }
-
-  private:
-    static llvm::FunctionCallee
-    getPrintfFunction( llvm::Module& module )
-    {
-        auto& context = module.getContext();
-        auto* printf_type =
-            llvm::FunctionType::get( llvm::Type::getInt32Ty( context ),
-                                     llvm::ArrayRef<llvm::Type*>{ llvm::PointerType::getUnqual(
-                                         llvm::Type::getInt8Ty( context ) ) },
-                                     true );
-        return module.getOrInsertFunction( "printf", printf_type );
-    }
-
-    llvm::Constant*
-    createFormatString( llvm::StringRef format )
-    {
-        llvm::IRBuilder<> builder( context_ );
-        return llvm::cast<llvm::Constant>(
-            builder.CreateGlobalStringPtr( format, "", 0, &module_ ) );
-    }
-
-    void
-    emit( llvm::IRBuilder<>&                  builder,
-          llvm::Constant*                     format,
-          std::initializer_list<llvm::Value*> args )
-    {
-        llvm::SmallVector<llvm::Value*, 6> printf_args;
-        printf_args.reserve( args.size() + 1 );
-        printf_args.push_back( format );
-        printf_args.append( args.begin(), args.end() );
-        builder.CreateCall( printf_function_, printf_args );
-    }
-
-  private:
-    llvm::Module&        module_;
-    llvm::LLVMContext&   context_;
-    llvm::FunctionCallee printf_function_;
-    llvm::Constant*      function_enter_format_    = nullptr;
-    llvm::Constant*      basic_block_enter_format_ = nullptr;
-    llvm::Constant*      call_edge_format_         = nullptr;
-    llvm::Constant*      cfg_edge_format_          = nullptr;
-};
-
 bool
-isSupportedControlFlowTerminator( const llvm::Instruction& instruction )
+InjectPass::isSupportedControlFlowTerminator( const llvm::Instruction& instruction )
 {
     return llvm::isa<llvm::BranchInst>( instruction ) ||
            llvm::isa<llvm::SwitchInst>( instruction );
 }
 
-std::vector<OriginalCfgEdge>
-collectOriginalCfgEdges( llvm::Module& module, const ir_graph::BuildInfo& info )
+std::vector<InjectPass::OriginalCfgEdge>
+InjectPass::collectOriginalCfgEdges( llvm::Module& module, const ir_graph::BuildInfo& info )
 {
     std::vector<OriginalCfgEdge> edges;
 
@@ -250,7 +214,9 @@ collectOriginalCfgEdges( llvm::Module& module, const ir_graph::BuildInfo& info )
 }
 
 void
-injectEntryLogs( llvm::Module& module, const ir_graph::BuildInfo& info, LoggingEmitter& logger )
+InjectPass::injectEntryLogs( llvm::Module&              module,
+                             const ir_graph::BuildInfo& info,
+                             LoggingEmitter&            logger )
 {
     for ( auto& function : module )
     {
@@ -283,9 +249,9 @@ injectEntryLogs( llvm::Module& module, const ir_graph::BuildInfo& info, LoggingE
 }
 
 void
-injectCallEdgeLogs( llvm::Module&              module,
-                    const ir_graph::BuildInfo& info,
-                    LoggingEmitter&            logger )
+InjectPass::injectCallEdgeLogs( llvm::Module&              module,
+                                const ir_graph::BuildInfo& info,
+                                LoggingEmitter&            logger )
 {
     for ( auto& function : module )
     {
@@ -341,9 +307,9 @@ injectCallEdgeLogs( llvm::Module&              module,
 }
 
 void
-injectControlFlowEdgeLogs( llvm::Module&              module,
-                           const ir_graph::BuildInfo& info,
-                           LoggingEmitter&            logger )
+InjectPass::injectControlFlowEdgeLogs( llvm::Module&              module,
+                                       const ir_graph::BuildInfo& info,
+                                       LoggingEmitter&            logger )
 {
     const auto original_cfg_edges = collectOriginalCfgEdges( module, info );
 
@@ -366,8 +332,6 @@ injectControlFlowEdgeLogs( llvm::Module&              module,
                                   edge.successor_index );
     }
 }
-
-} // namespace
 
 llvm::PreservedAnalyses
 InjectPass::run( llvm::Module& module, llvm::ModuleAnalysisManager& /*unused*/ )
