@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include <argparse/argparse.hpp>
+#include "argparse/argparse.hpp"
 
 #include "ir_graph/ir_graph_serde.h"
 #include "ir_graph/ir_graph_to_dot.h"

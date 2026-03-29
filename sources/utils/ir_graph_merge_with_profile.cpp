@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <argparse/argparse.hpp>
+#include "argparse/argparse.hpp"
 
 #include "ir_graph/ir_graph_profile.h"
 #include "ir_graph/ir_graph_serde.h"

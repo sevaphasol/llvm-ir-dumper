@@ -25,7 +25,7 @@ def default_tool_path(*relative_candidates: str) -> Path:
 
 
 DEFAULT_PLUGIN_PATH = default_tool_path(
-    "install/lib/libLLVMIRDumper.so", "lib/libLLVMIRDumper.so"
+    "install/lib/libgraphcc-llvm-pass.so", "lib/libgraphcc-llvm-pass.so"
 )
 DEFAULT_CONVERTER_PATH = default_tool_path(
     "install/bin/ir_graph_to_dot", "bin/ir_graph_to_dot"
@@ -89,7 +89,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--plugin-path",
         default=str(DEFAULT_PLUGIN_PATH),
-        help="Path to libLLVMIRDumper.so. Defaults to %(default)s.",
+        help="Path to libgraphcc-llvm-pass.so. Defaults to %(default)s.",
     )
     parser.add_argument(
         "--converter-path",

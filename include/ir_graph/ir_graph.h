@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 namespace ir_graph {
 
@@ -25,10 +25,10 @@ enum class EdgeKind {
 
 class Function {
   private:
-    Id                id_ = 0;
-    std::string       name_;
-    std::optional<Id> entry_node_id_;
-    std::optional<Id> entry_basic_block_id_;
+    Id                           id_ = 0;
+    std::string                  name_;
+    std::optional<Id>            entry_node_id_;
+    std::optional<Id>            entry_basic_block_id_;
     std::optional<std::uint64_t> execution_count_;
 
   public:
@@ -61,10 +61,10 @@ class Function {
 
 class BasicBlock {
   private:
-    Id                id_          = 0;
-    Id                function_id_ = 0;
-    std::string       label_;
-    std::optional<Id> entry_node_id_;
+    Id                           id_          = 0;
+    Id                           function_id_ = 0;
+    std::string                  label_;
+    std::optional<Id>            entry_node_id_;
     std::optional<std::uint64_t> execution_count_;
 
   public:

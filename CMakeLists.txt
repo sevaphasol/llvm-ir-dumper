@@ -92,12 +92,12 @@ target_include_directories(
 target_link_libraries(graphcc_ir_graph_builder PUBLIC graphcc_ir_graph graphcc_llvm_support)
 
 add_library(
-    graphcc_llvm_pass SHARED
+    graphcc-llvm-pass SHARED
     ${LLVM_PASS_SOURCES})
 target_include_directories(
-    graphcc_llvm_pass
+    graphcc-llvm-pass
     PRIVATE ${INCLUDE_DIR})
-target_link_libraries(graphcc_llvm_pass PRIVATE graphcc_ir_graph_builder)
+target_link_libraries(graphcc-llvm-pass PRIVATE graphcc_ir_graph_builder)
 
 add_executable(
     ir_graph_to_dot
@@ -110,7 +110,7 @@ add_executable(
 target_link_libraries(ir_graph_merge_with_profile PRIVATE argparse::argparse graphcc_ir_graph)
 
 install(
-    TARGETS graphcc_llvm_pass
+    TARGETS graphcc-llvm-pass
     LIBRARY DESTINATION lib)
 install(
     TARGETS ir_graph_to_dot ir_graph_merge_with_profile
