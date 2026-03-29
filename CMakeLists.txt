@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(graphcc LANGUAGES C CXX)
+project(cdfgg LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,12 +7,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(
-    GRAPHCC_INSTALL_SYMLINK
-    "Create an extra graphcc symlink"
+    CDFGG_INSTALL_SYMLINK
+    "Create an extra cdfgg symlink"
     OFF)
-set(GRAPHCC_INSTALL_SYMLINK_DIR
+set(CDFGG_INSTALL_SYMLINK_DIR
     "$ENV{HOME}/.local/bin"
-    CACHE PATH "Directory for optional graphcc symlink.")
+    CACHE PATH "Directory for optional cdfgg symlink.")
 
 find_package(
     LLVM
@@ -61,75 +61,75 @@ file(
     "${UTILS_SOURCES_DIR}/ir_graph_to_dot.cpp")
 file(
     GLOB
-    GRPAHCC_DRIVER_SOURCES
+    CDFGG_DRIVER_SOURCES
     CONFIGURE_DEPENDS
-    "${UTILS_SOURCES_DIR}/graphcc.py")
+    "${UTILS_SOURCES_DIR}/cdfgg.py")
 
 add_library(
-    graphcc_llvm_support INTERFACE)
+    cdfgg_llvm_support INTERFACE)
 target_include_directories(
-    graphcc_llvm_support SYSTEM
+    cdfgg_llvm_support SYSTEM
     INTERFACE ${LLVM_INCLUDE_DIRS})
-target_compile_options(graphcc_llvm_support INTERFACE ${LLVM_DEFINITION_FLAGS})
+target_compile_options(cdfgg_llvm_support INTERFACE ${LLVM_DEFINITION_FLAGS})
 
 add_library(
-    graphcc_ir_graph STATIC
+    cdfgg_ir_graph STATIC
     ${IR_GRAPH_SOURCES})
 target_include_directories(
-    graphcc_ir_graph
+    cdfgg_ir_graph
     PUBLIC ${INCLUDE_DIR})
 target_link_libraries(
-    graphcc_ir_graph
+    cdfgg_ir_graph
     PUBLIC nlohmann_json::nlohmann_json
     PRIVATE dot_graph_lib::dot_graph_lib)
 
 add_library(
-    graphcc_ir_graph_builder STATIC
+    cdfgg_ir_graph_builder STATIC
     ${IR_GRAPH_BUILDER_SOURCES})
 target_include_directories(
-    graphcc_ir_graph_builder
+    cdfgg_ir_graph_builder
     PUBLIC ${INCLUDE_DIR})
-target_link_libraries(graphcc_ir_graph_builder PUBLIC graphcc_ir_graph graphcc_llvm_support)
+target_link_libraries(cdfgg_ir_graph_builder PUBLIC cdfgg_ir_graph cdfgg_llvm_support)
 
 add_library(
-    graphcc-llvm-pass SHARED
+    cdfgg-llvm-pass SHARED
     ${LLVM_PASS_SOURCES})
 target_include_directories(
-    graphcc-llvm-pass
+    cdfgg-llvm-pass
     PRIVATE ${INCLUDE_DIR})
-target_link_libraries(graphcc-llvm-pass PRIVATE graphcc_ir_graph_builder)
+target_link_libraries(cdfgg-llvm-pass PRIVATE cdfgg_ir_graph_builder)
 
 add_executable(
     ir_graph_to_dot
     ${IR_GRAPH_TO_DOT_SOURCES})
-target_link_libraries(ir_graph_to_dot PRIVATE argparse::argparse graphcc_ir_graph)
+target_link_libraries(ir_graph_to_dot PRIVATE argparse::argparse cdfgg_ir_graph)
 
 add_executable(
     ir_graph_merge_with_profile
     ${IR_GRAPH_MERGE_WITH_PROFILE_SOURCES})
-target_link_libraries(ir_graph_merge_with_profile PRIVATE argparse::argparse graphcc_ir_graph)
+target_link_libraries(ir_graph_merge_with_profile PRIVATE argparse::argparse cdfgg_ir_graph)
 
 install(
-    TARGETS graphcc-llvm-pass
+    TARGETS cdfgg-llvm-pass
     LIBRARY DESTINATION lib)
 install(
     TARGETS ir_graph_to_dot ir_graph_merge_with_profile
     RUNTIME DESTINATION bin)
 install(
-    PROGRAMS ${GRPAHCC_DRIVER_SOURCES}
+    PROGRAMS ${CDFGG_DRIVER_SOURCES}
     DESTINATION bin
-    RENAME graphcc)
+    RENAME cdfgg)
 
-if(GRAPHCC_INSTALL_SYMLINK)
+if(CDFGG_INSTALL_SYMLINK)
     install(
         CODE "
-file(MAKE_DIRECTORY \"$ENV{DESTDIR}${GRAPHCC_INSTALL_SYMLINK_DIR}\")
-file(REMOVE \"$ENV{DESTDIR}${GRAPHCC_INSTALL_SYMLINK_DIR}/graphcc\")
-file(REAL_PATH \"\${CMAKE_INSTALL_PREFIX}/bin/graphcc\" REAL_PATH_GRAPHCC)
+file(MAKE_DIRECTORY \"$ENV{DESTDIR}${CDFGG_INSTALL_SYMLINK_DIR}\")
+file(REMOVE \"$ENV{DESTDIR}${CDFGG_INSTALL_SYMLINK_DIR}/cdfgg\")
+file(REAL_PATH \"\${CMAKE_INSTALL_PREFIX}/bin/cdfgg\" REAL_PATH_CDFGG)
 file(
     CREATE_LINK
-    \"\${REAL_PATH_GRAPHCC}\"
-    \"$ENV{DESTDIR}${GRAPHCC_INSTALL_SYMLINK_DIR}/graphcc\"
+    \"\${REAL_PATH_CDFGG}\"
+    \"$ENV{DESTDIR}${CDFGG_INSTALL_SYMLINK_DIR}/cdfgg\"
     SYMBOLIC
 )
 ")

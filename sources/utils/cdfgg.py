@@ -27,7 +27,7 @@ def default_tool_path(*relative_candidates: str) -> Path:
 
 
 DEFAULT_PLUGIN_PATH = default_tool_path(
-    "install/lib/libgraphcc-llvm-pass.so", "lib/libgraphcc-llvm-pass.so"
+    "install/lib/libcdfgg-llvm-pass.so", "lib/libcdfgg-llvm-pass.so"
 )
 DEFAULT_CONVERTER_PATH = default_tool_path(
     "install/bin/ir_graph_to_dot", "bin/ir_graph_to_dot"
@@ -40,7 +40,7 @@ DEFAULT_PROFILE_TOOL_PATH = default_tool_path(
 )
 
 STAGE_CHOICES = ("before", "after", "both")
-DEFAULT_EMIT_DIR_SENTINEL = "__graphcc_default_emit_dir__"
+DEFAULT_EMIT_DIR_SENTINEL = "__cdfgg_default_emit_dir__"
 
 
 @dataclass(frozen=True)
@@ -120,7 +120,7 @@ class RunArtifacts:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="graphcc",
+        prog="cdfgg",
         description=(
             "Compile a C/C++ source file with the LLVM IR dumper plugin and emit static or "
             "dynamic CFG/DFG graph artifacts."
@@ -147,7 +147,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--plugin-path",
         default=str(DEFAULT_PLUGIN_PATH),
-        help="Path to libgraphcc-llvm-pass.so. Defaults to %(default)s.",
+        help="Path to libcdfgg-llvm-pass.so. Defaults to %(default)s.",
     )
     parser.add_argument(
         "--converter-path",
@@ -1016,7 +1016,7 @@ def main() -> int:
     except Exception as exc:
         if current_config is not None:
             cleanup_failed_run(current_config, current_artifacts)
-        print(f"[graphcc] {exc}", file=sys.stderr)
+        print(f"[cdfgg] {exc}", file=sys.stderr)
         return 1
 
 
